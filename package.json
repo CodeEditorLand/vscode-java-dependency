@@ -4,30 +4,31 @@
 	"version": "0.0.1",
 	"private": false,
 	"description": "%description%",
-	"homepage": "https://github.com/CodeEditorLand/Foundation#readme",
+	"keywords": [
+		"land"
+	],
+	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandJavaDependency#readme",
 	"bugs": {
-		"url": "https://github.com/CodeEditorLand/Foundation/issues"
+		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandJavaDependency/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/CodeEditorLand/Foundation.git"
+		"url": "git+HTTPS://github.com/CodeEditorLand/LandJavaDependency.git"
 	},
 	"license": "SEE LICENSE IN LICENSE",
 	"author": {
-		"name": "Playform",
-		"email": "Hello@Playform.Cloud",
-		"url": "https://playform.cloud"
+		"name": "🌆 — Land —",
+		"email": "Land@PlayForm.Cloud",
+		"url": "HTTPS://Land.PlayForm.Cloud"
 	},
 	"type": "module",
 	"main": "./main.js",
 	"scripts": {
+		"Document": "Document 'Source/**/*.ts'",
 		"build-server": "node scripts/buildJdtlsExt.js",
 		"compile": "tsc -p . && webpack --config webpack.config.js --mode development",
-		"prepublishOnly": "TypeScriptESBuild 'Source/**/*.ts'",
-		"test-ui": "tsc -p . && webpack --config webpack.config.js --mode development && node ./dist/test/ui/index.js",
-		"tslint": "tslint -t verbose --project tsconfig.json",
-		"vscode:prepublish": "tsc -p ./ && webpack --mode production",
-		"watch": "webpack --mode development --watch"
+		"prepublishOnly": "Build 'Source/**/*.ts'",
+		"test-ui": "tsc -p . && webpack --config webpack.config.js --mode development && node ./dist/test/ui/index.js"
 	},
 	"contributes": {
 		"commands": [
@@ -326,7 +327,7 @@
 			"type": "object"
 		},
 		"javaExtensions": [
-			"./server/com.microsoft.jdtls.ext.core-0.23.5.jar"
+			"./server/com.microsoft.jdtls.ext.core-0.23.6.jar"
 		],
 		"keybindings": [
 			{
@@ -1040,35 +1041,25 @@
 		"onCommand:_java.project.open"
 	],
 	"dependencies": {
-		"await-lock": "^2.2.2",
-		"fmtr": "^1.1.4",
-		"fs-extra": "^10.1.0",
-		"globby": "^13.1.3",
-		"lodash": "^4.17.21",
-		"minimatch": "^5.1.6",
-		"semver": "^7.3.8",
-		"vscode-extension-telemetry-wrapper": "^0.13.2",
-		"vscode-tas-client": "^0.1.75"
+		"await-lock": "2.2.2",
+		"fmtr": "1.1.4",
+		"fs-extra": "11.2.0",
+		"globby": "14.0.1",
+		"lodash": "4.17.21",
+		"minimatch": "9.0.4",
+		"semver": "7.6.0"
 	},
 	"devDependencies": {
-		"@types/fs-extra": "^9.0.13",
-		"@types/glob": "^7.2.0",
-		"@types/lodash": "^4.14.191",
-		"@types/minimatch": "^3.0.3",
-		"@types/mocha": "^9.1.1",
-		"@types/node": "^16.18.11",
-		"@types/semver": "^7.3.13",
-		"@types/vscode": "1.83.1",
-		"@vscode/test-electron": "^2.3.8",
-		"copy-webpack-plugin": "^11.0.0",
-		"glob": "^7.2.3",
-		"mocha": "^9.2.2",
-		"ts-loader": "^9.4.2",
-		"typescript": "^4.9.4",
-		"typescript-esbuild": "0.4.5",
-		"vscode-extension-tester": "^7.0.0",
-		"webpack": "^5.76.0",
-		"webpack-cli": "^4.10.0"
+		"@playform/build": "0.0.7",
+		"@playform/document": "0.0.6",
+		"@types/fs-extra": "11.0.4",
+		"@types/glob": "8.1.0",
+		"@types/lodash": "4.17.0",
+		"@types/minimatch": "5.1.2",
+		"@types/node": "20.12.7",
+		"@types/semver": "7.5.8",
+		"glob": "10.3.12",
+		"ts-loader": "9.5.1"
 	},
 	"publishConfig": {
 		"access": "public"
