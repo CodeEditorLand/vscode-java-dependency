@@ -1054,9 +1054,9 @@
 		"@playform/document": "0.0.6",
 		"@types/fs-extra": "11.0.4",
 		"@types/glob": "8.1.0",
-		"@types/lodash": "4.17.0",
+		"@types/lodash": "4.17.1",
 		"@types/minimatch": "5.1.2",
-		"@types/node": "20.12.7",
+		"@types/node": "20.12.10",
 		"@types/semver": "7.5.8",
 		"glob": "10.3.12",
 		"ts-loader": "9.5.1"
