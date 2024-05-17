@@ -1,27 +1,7 @@
 {
 	"name": "vscode-java-dependency",
 	"displayName": "Project Manager for Java",
-	"version": "0.0.1",
-	"private": false,
 	"description": "%description%",
-	"keywords": [
-		"land"
-	],
-	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandJavaDependency#readme",
-	"bugs": {
-		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandJavaDependency/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+HTTPS://github.com/CodeEditorLand/LandJavaDependency.git"
-	},
-	"license": "SEE LICENSE IN LICENSE",
-	"author": {
-		"name": "🛬 Land —",
-		"email": "Land@PlayForm.Cloud",
-		"url": "HTTPS://Land.PlayForm.Cloud"
-	},
-	"type": "module",
 	"main": "./main.js",
 	"scripts": {
 		"Document": "Document 'Source/**/*.ts'",
@@ -1051,7 +1031,6 @@
 	},
 	"devDependencies": {
 		"@playform/build": "0.0.7",
-		"@playform/document": "0.0.6",
 		"@types/fs-extra": "11.0.4",
 		"@types/glob": "8.1.0",
 		"@types/lodash": "4.17.1",
@@ -1060,9 +1039,6 @@
 		"@types/semver": "7.5.8",
 		"glob": "10.3.12",
 		"ts-loader": "9.5.1"
-	},
-	"publishConfig": {
-		"access": "public"
 	},
 	"icon": "logo.png",
 	"preview": false,
