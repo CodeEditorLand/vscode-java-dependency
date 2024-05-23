@@ -1034,7 +1034,7 @@
 		"@types/minimatch": "5.1.2",
 		"@types/node": "20.12.12",
 		"@types/semver": "7.5.8",
-		"glob": "10.3.15",
+		"glob": "10.3.16",
 		"ts-loader": "9.5.1"
 	},
 	"icon": "logo.png",
