@@ -1017,24 +1017,24 @@
 		]
 	},
 	"dependencies": {
-		"await-lock": "^2.2.2",
-		"fmtr": "^1.1.4",
-		"fs-extra": "^11.2.0",
-		"globby": "^14.0.1",
-		"lodash": "^4.17.21",
-		"minimatch": "^9.0.4",
-		"semver": "^7.6.2"
+		"await-lock": "2.2.2",
+		"fmtr": "1.1.4",
+		"fs-extra": "11.2.0",
+		"globby": "14.0.1",
+		"lodash": "4.17.21",
+		"minimatch": "9.0.4",
+		"semver": "7.6.2"
 	},
 	"description": "%description%",
 	"devDependencies": {
-		"@types/fs-extra": "^11.0.4",
-		"@types/glob": "^8.1.0",
-		"@types/lodash": "^4.17.5",
-		"@types/minimatch": "^5.1.2",
-		"@types/node": "^20.14.2",
-		"@types/semver": "^7.5.8",
-		"glob": "^10.4.1",
-		"ts-loader": "^9.5.1"
+		"@types/fs-extra": "11.0.4",
+		"@types/glob": "8.1.0",
+		"@types/lodash": "4.17.5",
+		"@types/minimatch": "5.1.2",
+		"@types/node": "20.14.2",
+		"@types/semver": "7.5.8",
+		"glob": "10.4.1",
+		"ts-loader": "9.5.1"
 	},
 	"displayName": "Project Manager for Java",
 	"icon": "logo.png",
