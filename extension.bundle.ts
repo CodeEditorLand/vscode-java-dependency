@@ -27,7 +27,11 @@ export { LanguageServerMode } from "./src/languageServerApi/LanguageServerMode";
 export { languageServerApiManager } from "./src/languageServerApi/languageServerApiManager";
 
 // tasks
-export { BuildTaskProvider, categorizePaths, getFinalPaths } from "./src/tasks/build/buildTaskProvider";
+export {
+	BuildTaskProvider,
+	categorizePaths,
+	getFinalPaths,
+} from "./src/tasks/build/buildTaskProvider";
 
 // delegate commands
 export { Jdtls } from "./src/java/jdtls";

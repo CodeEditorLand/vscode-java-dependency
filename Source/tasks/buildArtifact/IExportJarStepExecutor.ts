@@ -4,5 +4,5 @@
 import { IStepMetadata } from "./IStepMetadata";
 
 export interface IExportJarStepExecutor {
-    execute(stepMetadata?: IStepMetadata): Promise<boolean>;
+	execute(stepMetadata?: IStepMetadata): Promise<boolean>;
 }
