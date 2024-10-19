@@ -1043,7 +1043,7 @@
 	"devDependencies": {
 		"@types/fs-extra": "11.0.4",
 		"@types/glob": "8.1.0",
-		"@types/lodash": "4.17.10",
+		"@types/lodash": "4.17.11",
 		"@types/minimatch": "5.1.2",
 		"@types/node": "22.x",
 		"@types/semver": "7.5.8",
