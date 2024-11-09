@@ -3,149 +3,135 @@
 
 import * as _ from "lodash";
 import { ThemeIcon, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
-
 import { INodeData, NodeKind } from "../java/nodeData";
 import { explorerLock } from "../utils/Lock";
 import { ExplorerNode } from "./explorerNode";
 
 export abstract class DataNode extends ExplorerNode {
-	protected _childrenNodes: ExplorerNode[];
 
-	constructor(
-		protected _nodeData: INodeData,
-		parent?: DataNode,
-	) {
-		super(parent);
-	}
+    protected _childrenNodes: ExplorerNode[];
 
-	public getTreeItem(): TreeItem | Promise<TreeItem> {
-		const item = new TreeItem(
-			this._nodeData.displayName || this._nodeData.name,
-			this.hasChildren()
-				? TreeItemCollapsibleState.Collapsed
-				: TreeItemCollapsibleState.None,
-		);
-		item.description = this.description;
-		item.iconPath = this.iconPath;
-		item.command = this.command;
-		item.contextValue = this.computeContextValue();
-		if (this.uri) {
-			switch (this._nodeData.kind) {
-				case NodeKind.Project:
-				case NodeKind.PackageRoot:
-				case NodeKind.Package:
-				case NodeKind.PrimaryType:
-				case NodeKind.CompilationUnit:
-				case NodeKind.ClassFile:
-				case NodeKind.Folder:
-				case NodeKind.File:
-					item.resourceUri = Uri.parse(this.uri);
-					break;
-			}
-		}
+    constructor(protected _nodeData: INodeData, parent?: DataNode) {
+        super(parent);
+    }
 
-		return item;
-	}
+    public getTreeItem(): TreeItem | Promise<TreeItem> {
+        const item = new TreeItem(
+            this._nodeData.displayName || this._nodeData.name,
+            this.hasChildren() ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None,
+        );
+        item.description = this.description;
+        item.iconPath = this.iconPath;
+        item.command = this.command;
+        item.contextValue = this.computeContextValue();
+        if (this.uri) {
+            switch (this._nodeData.kind) {
+                case NodeKind.Project:
+                case NodeKind.PackageRoot:
+                case NodeKind.Package:
+                case NodeKind.PrimaryType:
+                case NodeKind.CompilationUnit:
+                case NodeKind.ClassFile:
+                case NodeKind.Folder:
+                case NodeKind.File:
+                    item.resourceUri = Uri.parse(this.uri);
+                    break;
+            }
+        }
 
-	public get nodeData(): INodeData {
-		return this._nodeData;
-	}
+        return item;
+    }
 
-	public get uri() {
-		return this._nodeData.uri;
-	}
+    public getDisplayName(): string {
+        return this._nodeData.displayName || this._nodeData.name;
+    }
 
-	public get path() {
-		return this._nodeData.path;
-	}
+    public get nodeData(): INodeData {
+        return this._nodeData;
+    }
 
-	public get handlerIdentifier() {
-		return this._nodeData.handlerIdentifier;
-	}
+    public get uri() {
+        return this._nodeData.uri;
+    }
 
-	public get name() {
-		return this._nodeData.name;
-	}
+    public get path() {
+        return this._nodeData.path;
+    }
 
-	public async revealPaths(
-		paths: INodeData[],
-	): Promise<DataNode | undefined> {
-		if (_.isEmpty(paths)) {
-			return this;
-		}
-		const childNodeData = paths.shift();
-		const children: ExplorerNode[] = await this.getChildren();
-		const childNode = <DataNode>(
-			children?.find(
-				(child: DataNode) =>
-					child.nodeData.name === childNodeData?.name &&
-					child.path === childNodeData?.path,
-			)
-		);
-		return childNode && paths.length
-			? childNode.revealPaths(paths)
-			: childNode;
-	}
+    public get handlerIdentifier() {
+        return this._nodeData.handlerIdentifier;
+    }
 
-	public async getChildren(): Promise<ExplorerNode[]> {
-		try {
-			await explorerLock.acquireAsync();
-			if (!this._nodeData.children) {
-				const data = await this.loadData();
-				this._nodeData.children = data;
-				this._childrenNodes = this.createChildNodeList() || [];
-				this.sort();
-				return this._childrenNodes;
-			}
-			return this._childrenNodes;
-		} finally {
-			explorerLock.release();
-		}
-	}
+    public get name() {
+        return this._nodeData.name;
+    }
 
-	public computeContextValue(): string | undefined {
-		let contextValue = this.contextValue;
-		if (this.uri && this.uri.startsWith("file:")) {
-			contextValue = `${contextValue || ""}+uri`;
-		}
-		if (contextValue) {
-			contextValue = `java:${contextValue}`;
-		}
-		return contextValue;
-	}
+    public async revealPaths(paths: INodeData[]): Promise<DataNode | undefined> {
+        if (_.isEmpty(paths)) {
+            return this;
+        }
+        const childNodeData = paths.shift();
+        const children: ExplorerNode[] = await this.getChildren();
+        const childNode = <DataNode>children?.find((child: DataNode) =>
+            child.nodeData.name === childNodeData?.name && child.path === childNodeData?.path);
+        return (childNode && paths.length) ? childNode.revealPaths(paths) : childNode;
+    }
 
-	protected sort() {
-		this._childrenNodes.sort((a: ExplorerNode, b: ExplorerNode) => {
-			if (a instanceof DataNode && b instanceof DataNode) {
-				if (a.nodeData.kind === b.nodeData.kind) {
-					return a.nodeData.name < b.nodeData.name ? -1 : 1;
-				} else {
-					return a.nodeData.kind - b.nodeData.kind;
-				}
-			}
-			return 0;
-		});
-	}
+    public async getChildren(): Promise<ExplorerNode[]> {
+        try {
+            await explorerLock.acquireAsync();
+            if (!this._nodeData.children) {
+                const data = await this.loadData();
+                this._nodeData.children = data;
+                this._childrenNodes = this.createChildNodeList() || [];
+                this.sort();
+                return this._childrenNodes;
+            }
+            return this._childrenNodes;
+        } finally {
+            explorerLock.release();
+        }
+    }
 
-	protected hasChildren(): boolean {
-		return true;
-	}
+    public computeContextValue(): string | undefined {
+        let contextValue = this.contextValue;
+        if (this.uri && this.uri.startsWith("file:")) {
+            contextValue = `${contextValue || ""}+uri`;
+        }
+        if (contextValue) {
+            contextValue = `java:${contextValue}`;
+        }
+        return contextValue;
+    }
 
-	protected get description(): string | boolean | undefined {
-		return undefined;
-	}
+    protected sort() {
+        this._childrenNodes.sort((a: ExplorerNode, b: ExplorerNode) => {
+            if (a instanceof DataNode && b instanceof DataNode) {
+                if (a.nodeData.kind === b.nodeData.kind) {
+                    return a.nodeData.name < b.nodeData.name ? -1 : 1;
+                } else {
+                    return a.nodeData.kind - b.nodeData.kind;
+                }
+            }
+            return 0;
+        });
+    }
 
-	protected get contextValue(): string | undefined {
-		return undefined;
-	}
+    protected hasChildren(): boolean {
+        return true;
+    }
 
-	protected abstract get iconPath():
-		| string
-		| Uri
-		| { light: string | Uri; dark: string | Uri }
-		| ThemeIcon;
+    protected get description(): string | boolean | undefined {
+        return undefined;
+    }
 
-	protected abstract loadData(): Promise<any[] | undefined>;
+    protected get contextValue(): string | undefined {
+        return undefined;
+    }
 
-	protected abstract createChildNodeList(): ExplorerNode[] | undefined;
+    protected abstract get iconPath(): string | Uri | { light: string | Uri; dark: string | Uri } | ThemeIcon;
+
+    protected abstract loadData(): Promise<any[] | undefined>;
+
+    protected abstract createChildNodeList(): ExplorerNode[] | undefined;
 }

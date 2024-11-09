@@ -4,34 +4,35 @@
 import { Command, ProviderResult, TreeItem } from "vscode";
 
 export abstract class ExplorerNode {
-	constructor(private _parent?: ExplorerNode) {}
 
-	public getParent(): ExplorerNode | undefined {
-		return this._parent;
-	}
+    constructor(private _parent?: ExplorerNode) {
+    }
 
-	public isItselfOrAncestorOf(
-		node: ExplorerNode | undefined | null,
-		levelToCheck: number = Number.MAX_VALUE,
-	) {
-		while (node && levelToCheck >= 0) {
-			if (this === node) {
-				return true;
-			}
-			node = node.getParent();
-			levelToCheck--;
-		}
+    public getParent(): ExplorerNode | undefined {
+        return this._parent;
+    }
 
-		return false;
-	}
+    public isItselfOrAncestorOf(node: ExplorerNode | undefined | null, levelToCheck: number = Number.MAX_VALUE) {
+        while (node && levelToCheck >= 0) {
+            if (this === node) {
+                return true;
+            }
+            node = node.getParent();
+            levelToCheck--;
+        }
 
-	protected get command(): Command | undefined {
-		return undefined;
-	}
+        return false;
+    }
 
-	public abstract getChildren(): ProviderResult<ExplorerNode[]>;
+    protected get command(): Command | undefined {
+        return undefined;
+    }
 
-	public abstract getTreeItem(): TreeItem | Promise<TreeItem>;
+    public abstract getChildren(): ProviderResult<ExplorerNode[]>;
 
-	public abstract computeContextValue(): string | undefined;
+    public abstract getTreeItem(): TreeItem | Promise<TreeItem>;
+
+    public abstract computeContextValue(): string | undefined;
+
+    public abstract getDisplayName(): string;
 }
