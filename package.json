@@ -1033,23 +1033,23 @@
 		"onCommand:_java.project.open"
 	],
 	"dependencies": {
-		"await-lock": "^2.2.2",
-		"fmtr": "^1.1.4",
-		"fs-extra": "^11.2.0",
-		"globby": "^14.0.2",
-		"lodash": "^4.17.21",
-		"minimatch": "^10.0.1",
-		"semver": "^7.6.3"
+		"await-lock": "2.2.2",
+		"fmtr": "1.1.4",
+		"fs-extra": "11.2.0",
+		"globby": "14.0.2",
+		"lodash": "4.17.21",
+		"minimatch": "10.0.1",
+		"semver": "7.6.3"
 	},
 	"devDependencies": {
-		"@types/fs-extra": "^11.0.4",
-		"@types/glob": "^8.1.0",
-		"@types/lodash": "^4.17.13",
-		"@types/minimatch": "^5.1.2",
+		"@types/fs-extra": "11.0.4",
+		"@types/glob": "8.1.0",
+		"@types/lodash": "4.17.13",
+		"@types/minimatch": "5.1.2",
 		"@types/node": "22.x",
-		"@types/semver": "^7.5.8",
-		"glob": "^11.0.0",
-		"ts-loader": "^9.5.1"
+		"@types/semver": "7.5.8",
+		"glob": "11.0.0",
+		"ts-loader": "9.5.1"
 	},
 	"icon": "logo.png",
 	"preview": false,
