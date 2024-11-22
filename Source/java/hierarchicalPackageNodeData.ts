@@ -12,6 +12,7 @@ export class HierarchicalPackageNodeData implements INodeData {
 			result.addSubPackage(nodeData.name.split("."), nodeData),
 		);
 		result.compressTree();
+
 		return result;
 	}
 
@@ -69,12 +70,15 @@ export class HierarchicalPackageNodeData implements INodeData {
 	private addSubPackage(packages: string[], nodeData: INodeData): void {
 		if (!packages.length) {
 			this.nodeData = nodeData;
+
 			return;
 		}
 		const subPackageDisplayName = packages.shift();
+
 		const childNode = this.children.find(
 			(child) => child.displayName === subPackageDisplayName,
 		);
+
 		if (childNode) {
 			childNode.addSubPackage(packages, nodeData);
 		} else {

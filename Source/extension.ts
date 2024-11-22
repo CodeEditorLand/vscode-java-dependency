@@ -117,6 +117,7 @@ async function activateExtension(
 		(uri?: Uri) => {
 			if (!uri) {
 				const activeDocument = window.activeTextEditor?.document;
+
 				if (!activeDocument) {
 					return;
 				}
@@ -154,6 +155,7 @@ async function activateExtension(
 			},
 		),
 	);
+
 	setContextForDeprecatedTasks();
 }
 
@@ -167,6 +169,7 @@ function addExtensionChangeListener(context: ExtensionContext): void {
 	const extension: Extension<any> | undefined = extensions.getExtension(
 		ExtensionName.JAVA_LANGUAGE_SUPPORT,
 	);
+
 	if (!extension) {
 		// java language support is not installed or disabled
 		const extensionChangeListener = extensions.onDidChange(() => {
@@ -189,13 +192,16 @@ function addExtensionChangeListener(context: ExtensionContext): void {
 function setContextForReloadProject(document: TextDocument | undefined): void {
 	if (!document || !buildFiles.includes(path.basename(document.fileName))) {
 		contextManager.setContextValue(Context.RELOAD_PROJECT_ACTIVE, false);
+
 		return;
 	}
 
 	const diagnostics: Diagnostic[] = languages.getDiagnostics(document.uri);
+
 	for (const diagnostic of diagnostics) {
 		if (diagnostic.message.startsWith("The build file has been changed")) {
 			contextManager.setContextValue(Context.RELOAD_PROJECT_ACTIVE, true);
+
 			return;
 		}
 	}

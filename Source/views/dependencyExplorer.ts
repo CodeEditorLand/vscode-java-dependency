@@ -63,6 +63,7 @@ export class DependencyExplorer implements Disposable {
 
 	constructor(public readonly context: ExtensionContext) {
 		this._dataProvider = new DependencyDataProvider(context);
+
 		const dndController = new DragAndDropController();
 		this._dependencyViewer = window.createTreeView("javaProjectExplorer", {
 			treeDataProvider: this._dataProvider,
@@ -88,6 +89,7 @@ export class DependencyExplorer implements Disposable {
 				(e: TreeViewVisibilityChangeEvent) => {
 					if (e.visible) {
 						sendInfo("", { projectManagerVisible: 1 });
+
 						if (window.activeTextEditor) {
 							this.reveal(window.activeTextEditor.document.uri);
 						}
@@ -105,8 +107,11 @@ export class DependencyExplorer implements Disposable {
 					await commands.executeCommand(
 						Commands.JAVA_PROJECT_EXPLORER_FOCUS,
 					);
+
 					let fsPath: string = uri.fsPath;
+
 					const fileName: string = path.basename(fsPath);
+
 					if (
 						/(.*\.gradle)|(.*\.gradle\.kts)|(pom\.xml)$/.test(
 							fileName,
@@ -115,6 +120,7 @@ export class DependencyExplorer implements Disposable {
 						fsPath = path.dirname(fsPath);
 					}
 					uri = Uri.file(fsPath);
+
 					if ((await fse.stat(fsPath)).isFile()) {
 						await commands.executeCommand(
 							Commands.VSCODE_OPEN,
@@ -225,6 +231,7 @@ export class DependencyExplorer implements Disposable {
 						this._dependencyViewer.selection,
 						node,
 					);
+
 					if (!cmdNode) {
 						cmdNode = await this.promptForProjectNode();
 					}
@@ -244,6 +251,7 @@ export class DependencyExplorer implements Disposable {
 						this._dependencyViewer.selection,
 						node,
 					);
+
 					if (cmdNode?.uri) {
 						commands.executeCommand(
 							"revealFileInOS",
@@ -259,6 +267,7 @@ export class DependencyExplorer implements Disposable {
 						this._dependencyViewer.selection,
 						node,
 					);
+
 					if (cmdNode?.uri) {
 						commands.executeCommand(
 							"copyFilePath",
@@ -274,6 +283,7 @@ export class DependencyExplorer implements Disposable {
 						this._dependencyViewer.selection,
 						node,
 					);
+
 					if (cmdNode?.uri) {
 						commands.executeCommand(
 							"copyRelativeFilePath",
@@ -323,6 +333,7 @@ export class DependencyExplorer implements Disposable {
 	): Promise<void> {
 		try {
 			await this._revealLock.acquireAsync();
+
 			if (needCheckSyncSetting && !Settings.syncWithFolderExplorer()) {
 				return;
 			}
@@ -332,10 +343,12 @@ export class DependencyExplorer implements Disposable {
 			}
 
 			let node: DataNode | undefined = explorerNodeCache.getDataNode(uri);
+
 			if (!node) {
 				const paths: INodeData[] = await Jdtls.resolvePath(
 					uri.toString(),
 				);
+
 				if (!_.isEmpty(paths)) {
 					node = await this._dataProvider.revealPaths(paths);
 				}
@@ -357,10 +370,12 @@ export class DependencyExplorer implements Disposable {
 
 	private async promptForProjectNode(): Promise<DataNode | undefined> {
 		const projects = await this._dataProvider.getRootProjects();
+
 		if (projects.length === 0) {
 			window.showInformationMessage(
 				"There is no Java projects in current workspace.",
 			);
+
 			return undefined;
 		} else if (projects.length === 1) {
 			return projects[0] as DataNode;
@@ -371,6 +386,7 @@ export class DependencyExplorer implements Disposable {
 					node: p,
 				};
 			});
+
 			const choice: IProjectPickItem | undefined =
 				await window.showQuickPick(options, {
 					placeHolder: "Choose a project",

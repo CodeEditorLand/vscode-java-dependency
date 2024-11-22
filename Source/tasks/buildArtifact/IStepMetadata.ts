@@ -15,6 +15,7 @@ export interface IStepMetadata {
 	outputPath?: string;
 	projectList: INodeData[];
 	elements: string[];
+
 	classpaths: IClasspath[];
 	steps: ExportJarStep[];
 }

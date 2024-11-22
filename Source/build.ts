@@ -26,6 +26,7 @@ export async function buildWorkspace(): Promise<boolean> {
 		"build",
 		async (operationId: string) => {
 			let error;
+
 			try {
 				await executeJavaExtensionCommand(
 					Commands.JAVA_BUILD_WORKSPACE,
@@ -55,6 +56,7 @@ async function handleBuildFailure(
 	const error: Error = new UserError({
 		message: "Build failed",
 	});
+
 	setErrorCode(error, Number(err));
 	sendOperationError(operationId, "build", error);
 	// Workaround: Since VS Code 1.53, the contributed command would no longer throw exact error message when an error occurs.
@@ -79,6 +81,7 @@ async function handleBuildFailure(
 			operationName: "build",
 			choiceForBuildError: ans || "esc",
 		});
+
 		if (ans === "Proceed") {
 			return true;
 		} else if (ans === "Fix...") {
@@ -91,8 +94,10 @@ async function handleBuildFailure(
 
 export function checkErrorsReportedByJavaExtension(): boolean {
 	const problems = languages.getDiagnostics() || [];
+
 	for (const problem of problems) {
 		const fileName = basename(problem[0].fsPath || "");
+
 		if (
 			fileName.endsWith(".java") ||
 			fileName === "pom.xml" ||
@@ -113,6 +118,7 @@ export function checkErrorsReportedByJavaExtension(): boolean {
 
 async function showFixSuggestions(operationId: string) {
 	let buildFiles: string[] = [];
+
 	try {
 		buildFiles = await Jdtls.resolveBuildFiles();
 	} catch (error) {
@@ -124,6 +130,7 @@ async function showFixSuggestions(operationId: string) {
 		label: "Clean workspace cache",
 		detail: "Clean the stale workspace and reload the window",
 	});
+
 	if (buildFiles.length) {
 		pickitems.push({
 			label: "Update project configuration",
@@ -143,6 +150,7 @@ async function showFixSuggestions(operationId: string) {
 		operationName: "build",
 		choiceForBuildFix: ans ? ans.label : "esc",
 	});
+
 	if (!ans) {
 		return;
 	}

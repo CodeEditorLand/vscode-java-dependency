@@ -57,14 +57,17 @@ export class DragAndDropController
 		dataTransfer: DataTransfer,
 	): Promise<void> {
 		const data = dataTransfer.get(Explorer.Mime.JavaProjectExplorer);
+
 		if (data) {
 			await this.dropFromJavaProjectExplorer(target, data.value);
+
 			return;
 		}
 
 		const uris: string | undefined = await dataTransfer
 			.get(Explorer.Mime.TextUriList)
 			?.asString();
+
 		if (!uris) {
 			return;
 		}
@@ -74,6 +77,7 @@ export class DragAndDropController
 			.map((u) => {
 				try {
 					const uri = Uri.parse(u, true /* strict */);
+
 					if (uri.scheme !== "file") {
 						return undefined;
 					}
@@ -86,6 +90,7 @@ export class DragAndDropController
 					return u;
 				} catch (e) {
 					sendError(e);
+
 					return undefined;
 				}
 			})
@@ -93,6 +98,7 @@ export class DragAndDropController
 
 		if (uriList.length) {
 			await this.dropFromFileExplorer(target, uriList);
+
 			return;
 		}
 	}
@@ -116,9 +122,12 @@ export class DragAndDropController
 			);
 		} else if (node instanceof DocumentSymbolNode) {
 			const parent = node.getParent() as PrimaryTypeNode;
+
 			if (parent.uri) {
 				const range = (node as DocumentSymbolNode).range;
+
 				const fragment = `#L${range.start.line + 1},${range.start.character + 1}`;
+
 				const uri = parent.uri + fragment;
 				treeDataTransfer.set(
 					Explorer.Mime.TextUriList,
@@ -161,6 +170,7 @@ export class DragAndDropController
 		const source: DataNode | undefined = explorerNodeCache.getDataNode(
 			Uri.parse(uri),
 		);
+
 		if (!this.isDraggableNode(source)) {
 			sendInfo("", {
 				dndType: "drop",
@@ -168,6 +178,7 @@ export class DragAndDropController
 				dropTo: target?.computeContextValue() || "unknown",
 				draggable: "false",
 			});
+
 			return;
 		}
 
@@ -179,6 +190,7 @@ export class DragAndDropController
 				draggable: "true",
 				droppable: "false",
 			});
+
 			return;
 		}
 
@@ -198,6 +210,7 @@ export class DragAndDropController
 					draggable: "true",
 					droppable: "false",
 				});
+
 				return;
 			}
 
@@ -242,6 +255,7 @@ export class DragAndDropController
 				draggable: "true",
 				droppable: "false",
 			});
+
 			return;
 		}
 
@@ -257,6 +271,7 @@ export class DragAndDropController
 					draggable: "true",
 					droppable: "false",
 				});
+
 				return;
 			}
 
@@ -316,6 +331,7 @@ export class DragAndDropController
 	 */
 	private isUnderSourceRoot(node: DataNode): boolean {
 		let parent = node.getParent();
+
 		while (parent) {
 			if (parent instanceof ContainerNode) {
 				return false;
@@ -355,6 +371,7 @@ export class DragAndDropController
 		}
 
 		let parent: ExplorerNode | undefined = node;
+
 		while (parent) {
 			if (parent instanceof ProjectNode) {
 				return false;
@@ -390,7 +407,9 @@ export class DragAndDropController
 
 		if (target instanceof DataNode && target.uri && source.uri) {
 			const targetPath = Uri.parse(target.uri).fsPath;
+
 			const sourcePath = Uri.parse(source.uri).fsPath;
+
 			return path.relative(sourcePath, targetPath) === "..";
 		}
 
@@ -409,6 +428,7 @@ export class DragAndDropController
 			targetUri.fsPath,
 			path.basename(sourceUri.fsPath),
 		);
+
 		const choice = await window.showInformationMessage(
 			`Are you sure you want to move '${path.basename(sourceUri.fsPath)}' into '${path.basename(targetUri.fsPath)}'?`,
 			{ modal: true },
@@ -434,6 +454,7 @@ export class DragAndDropController
 			targetUri.fsPath,
 			path.basename(sourceUri.fsPath),
 		);
+
 		if (await this.confirmOverwrite(newPath)) {
 			await workspace.fs.copy(sourceUri, Uri.file(newPath), {
 				overwrite: true,
@@ -448,6 +469,7 @@ export class DragAndDropController
 	private async confirmOverwrite(file: string): Promise<boolean> {
 		if (await fse.pathExists(file)) {
 			const name = path.basename(file);
+
 			const ans = await window.showWarningMessage(
 				`A file or folder with the name '${name}' already exists in the destination folder. Do you want to replace it?`,
 				{
@@ -456,6 +478,7 @@ export class DragAndDropController
 				},
 				"Replace",
 			);
+
 			return ans === "Replace";
 		}
 
@@ -473,6 +496,7 @@ export class DragAndDropController
 				uriStrings.map(async (uriString) => {
 					try {
 						const uri = Uri.parse(uriString, true /* strict */);
+
 						if (uri.scheme !== "file") {
 							return undefined;
 						}
@@ -487,9 +511,11 @@ export class DragAndDropController
 							return undefined;
 						}
 						const uriPath = workspace.asRelativePath(uri, false);
+
 						return isDirectory ? uriPath + "/**/*.jar" : uriPath;
 					} catch (e) {
 						sendError(e);
+
 						return undefined;
 					}
 				}),

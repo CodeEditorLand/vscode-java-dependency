@@ -30,13 +30,16 @@ export class HierarchicalPackageNode extends PackageNode {
 				? TreeItemCollapsibleState.Collapsed
 				: TreeItemCollapsibleState.None,
 		);
+
 		return { ...super.getTreeItem(), ...item };
 	}
 
 	public async getChildren(): Promise<ExplorerNode[]> {
 		try {
 			await explorerLock.acquireAsync();
+
 			const data = await this.loadData();
+
 			if (data) {
 				if (this.nodeData?.children) {
 					this.nodeData.children.push(...data);
@@ -50,6 +53,7 @@ export class HierarchicalPackageNode extends PackageNode {
 			}
 			this._childrenNodes = this.createChildNodeList() || [];
 			this.sort();
+
 			return this._childrenNodes;
 		} finally {
 			explorerLock.release();
@@ -60,12 +64,14 @@ export class HierarchicalPackageNode extends PackageNode {
 		paths: INodeData[],
 	): Promise<DataNode | undefined> {
 		const hierarchicalNodeData = paths[0];
+
 		if (hierarchicalNodeData.name === this.nodeData.name) {
 			paths.shift();
 			// reveal as a package node
 			return super.revealPaths(paths);
 		} else {
 			const children: ExplorerNode[] = await this.getChildren();
+
 			const childNode = <DataNode>(
 				children.find(
 					(child: DataNode) =>
@@ -74,6 +80,7 @@ export class HierarchicalPackageNode extends PackageNode {
 						) || hierarchicalNodeData.name === child.nodeData.name,
 				)
 			);
+
 			return childNode ? childNode.revealPaths(paths) : undefined;
 		}
 	}
@@ -85,6 +92,7 @@ export class HierarchicalPackageNode extends PackageNode {
 
 	protected createChildNodeList(): ExplorerNode[] {
 		const result: (ExplorerNode | undefined)[] = [];
+
 		if (this.nodeData.children && this.nodeData.children.length) {
 			this.nodeData.children.forEach((nodeData) => {
 				result.push(

@@ -54,7 +54,9 @@ export class LibraryController implements Disposable {
 	public async addLibraries(canSelectFolders?: boolean) {
 		const workspaceFolder: WorkspaceFolder | undefined =
 			Utility.getDefaultWorkspaceFolder();
+
 		const isMac = platform() === "darwin";
+
 		const results: Uri[] | undefined = await window.showOpenDialog({
 			defaultUri: workspaceFolder && workspaceFolder.uri,
 			canSelectFiles: !canSelectFolders,
@@ -67,6 +69,7 @@ export class LibraryController implements Disposable {
 				? { Folders: ["*"] }
 				: { "Jar Files": ["jar"] },
 		});
+
 		if (!results) {
 			return;
 		}
@@ -76,9 +79,11 @@ export class LibraryController implements Disposable {
 					// keep the param: `includeWorkspaceFolder` to false here
 					// since the multi-root is not supported well for invisible projects
 					const uriPath = workspace.asRelativePath(uri, false);
+
 					const isLibraryFolder =
 						canSelectFolders ||
 						(isMac && (await fse.stat(uri.fsPath)).isDirectory());
+
 					return isLibraryFolder ? uriPath + "/**/*.jar" : uriPath;
 				}),
 			),
@@ -87,6 +92,7 @@ export class LibraryController implements Disposable {
 
 	public async removeLibrary(removalFsPath: string) {
 		const setting = Settings.referencedLibraries();
+
 		const removedPaths = _.remove(setting.include, (include) => {
 			if (path.isAbsolute(include)) {
 				return Uri.file(include).fsPath === removalFsPath;
@@ -96,6 +102,7 @@ export class LibraryController implements Disposable {
 				);
 			}
 		});
+
 		if (removedPaths.length === 0) {
 			// No duplicated item in include array, add it into the exclude field
 			setting.exclude = updatePatternArray(
@@ -108,6 +115,7 @@ export class LibraryController implements Disposable {
 
 	public async refreshLibraries(): Promise<void> {
 		const workspaceFolder = Utility.getDefaultWorkspaceFolder();
+
 		if (workspaceFolder) {
 			await Jdtls.refreshLibraries(workspaceFolder.uri.toString());
 		}
@@ -116,10 +124,12 @@ export class LibraryController implements Disposable {
 
 export function addLibraryGlobs(libraryGlobs: string[]) {
 	const setting = Settings.referencedLibraries();
+
 	setting.exclude = dedupAlreadyCoveredPattern(
 		libraryGlobs,
 		...setting.exclude,
 	);
+
 	setting.include = updatePatternArray(setting.include, ...libraryGlobs);
 	Settings.updateReferencedLibraries(setting);
 }
@@ -141,5 +151,6 @@ function dedupAlreadyCoveredPattern(
 function updatePatternArray(origin: string[], ...update: string[]): string[] {
 	update = dedupAlreadyCoveredPattern(origin, ...update);
 	origin.push(...update);
+
 	return _.uniq(origin);
 }

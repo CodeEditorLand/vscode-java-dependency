@@ -23,6 +23,7 @@ import { ExplorerNode } from "./views/explorerNode";
 import { explorerNodeCache } from "./views/nodeCache/explorerNodeCache";
 
 const ENABLE_AUTO_REFRESH: string = "java.view.package.enableAutoRefresh";
+
 const DISABLE_AUTO_REFRESH: string = "java.view.package.disableAutoRefresh";
 
 class SyncHandler implements Disposable {
@@ -30,6 +31,7 @@ class SyncHandler implements Disposable {
 
 	public updateFileWatcher(autoRefresh?: boolean): void {
 		this.dispose();
+
 		if (autoRefresh) {
 			instrumentOperation(ENABLE_AUTO_REFRESH, () =>
 				this.enableAutoRefresh(),
@@ -61,6 +63,7 @@ class SyncHandler implements Disposable {
 
 		try {
 			const uris = await this.getWatchingUris();
+
 			for (const uri of uris) {
 				const normalizedPath: string = uri.fsPath?.replace(
 					/[\\\/]+$/,
@@ -70,6 +73,7 @@ class SyncHandler implements Disposable {
 					normalizedPath,
 					"**/*",
 				);
+
 				const watcher: FileSystemWatcher =
 					workspace.createFileSystemWatcher(pattern);
 				this.disposables.push(watcher);

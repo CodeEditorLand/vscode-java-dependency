@@ -42,8 +42,11 @@ export const stepMap: Map<ExportJarStep, IExportJarStepExecutor> = new Map<
 
 export namespace ExportJarConstants {
 	export const DEPENDENCIES: string = "dependencies";
+
 	export const TEST_DEPENDENCIES: string = "testDependencies";
+
 	export const COMPILE_OUTPUT: string = "compileOutput";
+
 	export const TEST_COMPILE_OUTPUT: string = "testCompileOutput";
 }
 
@@ -63,10 +66,13 @@ export namespace ExportJarMessages {
 
 	export const JAVAWORKSPACES_EMPTY =
 		"No Java workspace found. Please make sure there is at least one valid Java workspace folder in your workspace folders.";
+
 	export const WORKSPACE_EMPTY =
 		"No Java project found in the workspace. Please make sure your workspace contains valid Java project(s).";
+
 	export const PROJECT_EMPTY =
 		"No classpath found in the Java project. Please make sure your Java project is valid.";
+
 	export const CLASSPATHS_EMPTY =
 		"No valid classpath found in the export jar configuration. Please make sure your configuration contains valid classpath(s).";
 
@@ -112,6 +118,7 @@ export function createPickBox<T extends QuickPickItem>(
 	pickBox.items = items;
 	pickBox.ignoreFocusOut = true;
 	pickBox.buttons = backBtnEnabled ? [QuickInputButtons.Back] : [];
+
 	return pickBox;
 }
 
@@ -127,6 +134,7 @@ export function failMessage(message: string, option?: IMessageOption): void {
 		Commands.VIEW_PACKAGE_EXPORT_JAR,
 		new Error(message),
 	);
+
 	if (option === undefined) {
 		window.showErrorMessage(message, "Done");
 	} else {
@@ -152,6 +160,7 @@ export function successMessage(outputFileName: string | undefined): void {
 		return;
 	}
 	let openInExplorer: string;
+
 	if (platform() === "win32") {
 		openInExplorer = "Reveal in File Explorer";
 	} else if (platform() === "darwin") {
@@ -185,12 +194,14 @@ export function toWinPath(inputPath: string): string {
 export async function getExtensionApi(): Promise<any> {
 	const extension: Extension<any> | undefined =
 		extensions.getExtension("redhat.java");
+
 	if (extension === undefined) {
 		throw new Error(
 			"Language Support for Java(TM) by Red Hat isn't running, the export process will be aborted.",
 		);
 	}
 	const extensionApi: any = await extension.activate();
+
 	if (extensionApi.getClasspaths === undefined) {
 		throw new Error(
 			"Export jar is not supported in the current version of language server, please check and update your Language Support for Java(TM) by Red Hat.",
@@ -201,9 +212,11 @@ export async function getExtensionApi(): Promise<any> {
 
 export function revealTerminal(terminalName: string) {
 	const terminals = window.terminals;
+
 	const presenterTerminals = terminals.filter(
 		(terminal) => terminal.name.indexOf(terminalName) >= 0,
 	);
+
 	if (presenterTerminals.length > 0) {
 		presenterTerminals[presenterTerminals.length - 1].show();
 	}

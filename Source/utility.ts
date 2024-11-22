@@ -20,6 +20,7 @@ export class Utility {
 				workspace.getWorkspaceFolder(
 					window.activeTextEditor.document.uri,
 				);
+
 			return activeWorkspaceFolder;
 		}
 		return undefined;
@@ -52,6 +53,7 @@ export class UserError extends Error {
 	constructor(context: ITroubleshootingMessage) {
 		super(context.message);
 		this.context = context;
+
 		setUserError(this);
 	}
 }
@@ -154,11 +156,13 @@ export function isTest(nodeData: INodeData | undefined): boolean {
 	}
 
 	const mavenScope: string = nodeData.metaData?.["maven.scope"] || "";
+
 	if (mavenScope.toLocaleLowerCase().includes("test")) {
 		return true;
 	}
 
 	const gradleScope: string = nodeData.metaData?.gradle_scope || "";
+
 	if (gradleScope.toLocaleLowerCase().includes("test")) {
 		return true;
 	}

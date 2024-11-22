@@ -135,6 +135,7 @@ export class Settings {
 					? libraries.sources
 					: undefined,
 		};
+
 		if (!updateSetting.exclude && !updateSetting.sources) {
 			updateSetting = libraries.include;
 		}
@@ -149,11 +150,13 @@ export class Settings {
 			.get<
 				string[] | Partial<IReferencedLibraries>
 			>("referencedLibraries");
+
 		const defaultSetting: IReferencedLibraries = {
 			include: [],
 			exclude: [],
 			sources: {},
 		};
+
 		if (Array.isArray(setting)) {
 			return { ...defaultSetting, include: setting };
 		} else {

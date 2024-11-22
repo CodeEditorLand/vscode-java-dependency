@@ -46,6 +46,7 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 							token.onCancellationRequested(() => {
 								return reject();
 							});
+
 							if (!stepMetadata.workspaceFolder) {
 								return reject(
 									new Error(
@@ -66,11 +67,14 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 					);
 				},
 			);
+
 		if (_.isEmpty(mainClasses)) {
 			stepMetadata.mainClass = "";
+
 			return true;
 		}
 		const pickItems: QuickPickItem[] = [];
+
 		for (const mainClass of mainClasses) {
 			pickItems.push({
 				label: ResolveMainClassExecutor.getName(mainClass),
@@ -82,8 +86,11 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 			description: "",
 		};
 		pickItems.push(noMainClassItem);
+
 		const disposables: Disposable[] = [];
+
 		let result: boolean = false;
+
 		try {
 			result = await new Promise<boolean>(async (resolve, reject) => {
 				const pickBox = createPickBox<QuickPickItem>(
@@ -105,6 +112,7 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 						stepMetadata.mainClass =
 							pickBox.selectedItems[0].description;
 						stepMetadata.steps.push(ExportJarStep.ResolveMainClass);
+
 						return resolve(true);
 					}),
 					pickBox.onDidHide(() => {

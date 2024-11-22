@@ -16,8 +16,11 @@ export async function deleteFiles(
 	}
 
 	const children = await node.getChildren();
+
 	const isFolder = children && children.length !== 0;
+
 	const message = getInformationMessage(node.name, isFolder, useTrash);
+
 	const confirmMessage = useTrash ? "Move to Recycle Bin" : "Delete";
 
 	const answer: string | undefined = await window.showInformationMessage(
@@ -45,6 +48,7 @@ function getInformationMessage(
 	useTrash: boolean,
 ): string {
 	const folderMsg = isFolder ? " and its contents" : "";
+
 	let msg = `Are you sure you want to ${useTrash ? "" : "permanently "}delete \'${name}\'${folderMsg}?`;
 
 	if (useTrash) {

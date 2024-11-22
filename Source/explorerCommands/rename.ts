@@ -26,11 +26,13 @@ export async function renameFile(node?: DataNode): Promise<void> {
 				value,
 				node.nodeData.kind,
 			);
+
 			if (checkMessage) {
 				return checkMessage;
 			}
 
 			const inputFsPath = getRenamedFsPath(oldFsPath, value);
+
 			if (await fse.pathExists(inputFsPath)) {
 				return `File path: ${inputFsPath} already exists.`;
 			}
@@ -44,6 +46,7 @@ export async function renameFile(node?: DataNode): Promise<void> {
 	}
 
 	const newFsPath = getRenamedFsPath(oldFsPath, newName);
+
 	const workspaceEdit: WorkspaceEdit = new WorkspaceEdit();
 	workspaceEdit.renameFile(Uri.file(oldFsPath), Uri.file(newFsPath));
 	workspace.applyEdit(workspaceEdit);
@@ -55,11 +58,13 @@ function getRenamedFsPath(oldUri: string, newName: string): string {
 		newName += path.extname(oldUri);
 	}
 	const dirname = path.dirname(oldUri);
+
 	return path.join(dirname, newName);
 }
 
 function getPrefillValue(node: DataNode): string {
 	const nodeKind = node.nodeData.kind;
+
 	if (nodeKind === NodeKind.PrimaryType) {
 		return node.name;
 	}
@@ -68,6 +73,7 @@ function getPrefillValue(node: DataNode): string {
 
 function getValueSelection(uri: string): [number, number] | undefined {
 	const pos = path.basename(uri).lastIndexOf(".");
+
 	if (pos !== -1) {
 		return [0, pos];
 	}

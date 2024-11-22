@@ -33,6 +33,7 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 	): Promise<void> {
 		// Guarded by workspaceFolderCount != 0 in package.json
 		const folders = workspace.workspaceFolders!;
+
 		if (stepMetadata.entry instanceof WorkspaceNode) {
 			if (!stepMetadata.entry?.uri) {
 				throw new Error(
@@ -43,6 +44,7 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 				);
 			}
 			const workspaceUri: Uri = Uri.parse(stepMetadata.entry.uri);
+
 			for (const folder of folders) {
 				if (folder.uri.toString() === workspaceUri.toString()) {
 					stepMetadata.workspaceFolder = folder;
@@ -51,6 +53,7 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 			stepMetadata.projectList = await Jdtls.getProjects(
 				workspaceUri.toString(),
 			);
+
 			return;
 		}
 		if (folders.length === 1) {
@@ -58,17 +61,21 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 			stepMetadata.projectList = await Jdtls.getProjects(
 				folders[0].uri.toString(),
 			);
+
 			return;
 		}
 		const pickItems: IJavaProjectQuickPickItem[] = [];
+
 		const projectMap: Map<string, INodeData[]> = new Map<
 			string,
 			INodeData[]
 		>();
+
 		for (const folder of folders) {
 			const projects: INodeData[] = await Jdtls.getProjects(
 				folder.uri.toString(),
 			);
+
 			if (!_.isEmpty(projects)) {
 				pickItems.push({
 					label: folder.name,
@@ -82,6 +89,7 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 			throw new Error(ExportJarMessages.JAVAWORKSPACES_EMPTY);
 		}
 		const disposables: Disposable[] = [];
+
 		try {
 			await new Promise<void>((resolve, reject) => {
 				const pickBox = createPickBox<IJavaProjectQuickPickItem>(
@@ -99,6 +107,7 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 							projectMap.get(
 								pickBox.selectedItems[0].workspaceFolder.uri.toString(),
 							) || [];
+
 						if (_.isEmpty(projectList)) {
 							return reject(
 								new Error(ExportJarMessages.WORKSPACE_EMPTY),
@@ -110,6 +119,7 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 						stepMetadata.steps.push(
 							ExportJarStep.ResolveJavaProject,
 						);
+
 						return resolve();
 					}),
 					pickBox.onDidHide(() => {

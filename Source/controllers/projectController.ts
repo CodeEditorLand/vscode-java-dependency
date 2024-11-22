@@ -78,6 +78,7 @@ export class ProjectController implements Disposable {
 
 	public async openJavaProject() {
 		const availableCommands: string[] = await commands.getCommands();
+
 		if (
 			availableCommands.includes(
 				Commands.WORKBENCH_ACTION_FILES_OPENFOLDER,
@@ -105,10 +106,12 @@ export class ProjectController implements Disposable {
 				};
 			},
 		);
+
 		const choice = await window.showQuickPick(items, {
 			ignoreFocusOut: true,
 			placeHolder: "Select the project type",
 		});
+
 		if (
 			!choice ||
 			!(await ensureExtension(choice.label, choice.metadata))
@@ -119,6 +122,7 @@ export class ProjectController implements Disposable {
 			projectCreationType: choice.metadata.type,
 			triggerfrom: triggerFrom,
 		});
+
 		if (choice.metadata.type === ProjectType.NoBuildTool) {
 			await scaffoldSimpleProject(this.context);
 		} else if (
@@ -178,8 +182,10 @@ async function ensureExtension(
 	const extension: Extension<any> | undefined = extensions.getExtension(
 		metaData.extensionId,
 	);
+
 	if (extension === undefined) {
 		await promptInstallExtension(typeName, metaData);
+
 		return false;
 	}
 
@@ -188,10 +194,12 @@ async function ensureExtension(
 		semver.lt(extension.packageJSON.version, metaData.leastExtensionVersion)
 	) {
 		await promptUpdateExtension(typeName, metaData);
+
 		return false;
 	}
 
 	await extension.activate();
+
 	return true;
 }
 
@@ -203,6 +211,7 @@ async function promptInstallExtension(
 		`${metaData.extensionName} is required to create ${projectType} projects. Please re-run the command 'Java: Create Java Project...' after the extension is installed.`,
 		"Install",
 	);
+
 	if (choice === "Install") {
 		commands.executeCommand(
 			Commands.INSTALL_EXTENSION,
@@ -219,6 +228,7 @@ async function promptUpdateExtension(
 		`${metaData.extensionName} needs to be updated to create ${projectType} projects. Please re-run the command 'Java: Create Java Project...' after the extension is updated.`,
 		"Update",
 	);
+
 	if (choice === "Update") {
 		commands.executeCommand(
 			Commands.INSTALL_EXTENSION,
@@ -229,17 +239,20 @@ async function promptUpdateExtension(
 
 async function scaffoldSimpleProject(context: ExtensionContext): Promise<void> {
 	const workspaceFolder = Utility.getDefaultWorkspaceFolder();
+
 	const location: Uri[] | undefined = await window.showOpenDialog({
 		defaultUri: workspaceFolder && workspaceFolder.uri,
 		canSelectFiles: false,
 		canSelectFolders: true,
 		openLabel: "Select the project location",
 	});
+
 	if (!location || !location.length) {
 		return;
 	}
 
 	const basePath: string = location[0].fsPath;
+
 	const projectName: string | undefined = await window.showInputBox({
 		prompt: "Input a Java project name",
 		ignoreFocusOut: true,
@@ -259,17 +272,20 @@ async function scaffoldSimpleProject(context: ExtensionContext): Promise<void> {
 	}
 
 	const projectRoot: string = path.join(basePath, projectName);
+
 	const templateRoot: string = path.join(
 		context.extensionPath,
 		"templates",
 		"invisible-project",
 	);
+
 	try {
 		await fse.ensureDir(projectRoot);
 		await fse.copy(templateRoot, projectRoot);
 		await fse.ensureDir(path.join(projectRoot, "lib"));
 	} catch (error) {
 		window.showErrorMessage(error.message);
+
 		return;
 	}
 	const openInNewWindow = workspace && !_.isEmpty(workspace.workspaceFolders);

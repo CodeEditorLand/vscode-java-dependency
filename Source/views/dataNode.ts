@@ -24,6 +24,7 @@ export abstract class DataNode extends ExplorerNode {
         item.iconPath = this.iconPath;
         item.command = this.command;
         item.contextValue = this.computeContextValue();
+
         if (this.uri) {
             switch (this._nodeData.kind) {
                 case NodeKind.Project:
@@ -35,6 +36,7 @@ export abstract class DataNode extends ExplorerNode {
                 case NodeKind.Folder:
                 case NodeKind.File:
                     item.resourceUri = Uri.parse(this.uri);
+
                     break;
             }
         }
@@ -71,20 +73,25 @@ export abstract class DataNode extends ExplorerNode {
             return this;
         }
         const childNodeData = paths.shift();
+
         const children: ExplorerNode[] = await this.getChildren();
+
         const childNode = <DataNode>children?.find((child: DataNode) =>
             child.nodeData.name === childNodeData?.name && child.path === childNodeData?.path);
+
         return (childNode && paths.length) ? childNode.revealPaths(paths) : childNode;
     }
 
     public async getChildren(): Promise<ExplorerNode[]> {
         try {
             await explorerLock.acquireAsync();
+
             if (!this._nodeData.children) {
                 const data = await this.loadData();
                 this._nodeData.children = data;
                 this._childrenNodes = this.createChildNodeList() || [];
                 this.sort();
+
                 return this._childrenNodes;
             }
             return this._childrenNodes;
@@ -95,6 +102,7 @@ export abstract class DataNode extends ExplorerNode {
 
     public computeContextValue(): string | undefined {
         let contextValue = this.contextValue;
+
         if (this.uri && this.uri.startsWith("file:")) {
             contextValue = `${contextValue || ""}+uri`;
         }

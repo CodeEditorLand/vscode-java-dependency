@@ -165,15 +165,22 @@ export async function newResource(node: DataNode): Promise<void> {
 	switch (type?.label) {
 		case "$(symbol-namespace) Package":
 			await newPackage(node);
+
 			break;
+
 		case "$(file) File":
 			await newFile(node);
+
 			break;
+
 		case "$(folder) Folder":
 			await newFolder(node);
+
 			break;
+
 		default:
 			const javaType = JavaType.fromDisplayName(type?.label || "");
+
 			if (javaType) {
 				await newJavaFileWithSpecificType(javaType, node);
 			}
@@ -184,6 +191,7 @@ export async function newResource(node: DataNode): Promise<void> {
 // Create a new Java file from the menu bar.
 export async function newJavaFile(): Promise<void> {
 	const packageFsPath: string | undefined = await inferPackageFsPath();
+
 	if (packageFsPath === undefined) {
 		// User canceled
 		return;
@@ -194,10 +202,12 @@ export async function newJavaFile(): Promise<void> {
 	const includeRecord =
 		isLanguageServerReady() &&
 		!(await isVersionLessThan(Uri.file(packageFsPath).toString(), 16));
+
 	const supportedTypes: string[] = JavaType.getDisplayNames(
 		true,
 		includeRecord,
 	);
+
 	const typeName: string | undefined = await window.showQuickPick(
 		supportedTypes,
 		{
@@ -205,6 +215,7 @@ export async function newJavaFile(): Promise<void> {
 			ignoreFocusOut: true,
 		},
 	);
+
 	if (!typeName) {
 		return;
 	}
@@ -224,7 +235,9 @@ export async function newJavaFileWithSpecificType(
 				: "javaProjectExplorer",
 		"javatype": javaType.label,
 	});
+
 	let packageFsPath: string | undefined;
+
 	if (!node) {
 		packageFsPath = await inferPackageFsPath();
 	} else if (node instanceof Uri && node?.fsPath) {
@@ -260,6 +273,7 @@ async function newJavaFile0(
 		ignoreFocusOut: true,
 		validateInput: async (value: string): Promise<string> => {
 			const checkMessage: string = checkJavaQualifiedName(value);
+
 			if (checkMessage) {
 				return checkMessage;
 			}
@@ -277,6 +291,7 @@ async function newJavaFile0(
 	}
 
 	const fsPath: string = getNewFilePath(packageFsPath, className);
+
 	const packageName = await resolvePackageName(fsPath);
 	await newJavaFileWithContents(fsPath, javaType, packageName);
 }
@@ -289,11 +304,17 @@ async function newJavaFileWithContents(
 	packageName: string,
 ) {
 	const snippets: string[] = [];
+
 	const formatNumber = (num: number) => (num > 9 ? String(num) : `0${num}`);
+
 	const typeName: string = resolveTypeName(fsPath);
+
 	const isPackageInfo = typeName === "package-info";
+
 	const isModuleInfo = typeName === "module-info";
+
 	const date = new Date();
+
 	const context: any = {
 		fileName: path.basename(fsPath),
 		packageName: "",
@@ -320,6 +341,7 @@ async function newJavaFileWithContents(
 	const fileHeader = workspace
 		.getConfiguration("java")
 		.get<string[]>("templates.fileHeader");
+
 	if (fileHeader && fileHeader.length) {
 		for (const template of fileHeader) {
 			snippets.push(stringInterpolate(template, context));
@@ -337,6 +359,7 @@ async function newJavaFileWithContents(
 		const typeComment = workspace
 			.getConfiguration("java")
 			.get<string[]>("templates.typeComment");
+
 		if (typeComment && typeComment.length) {
 			for (const template of typeComment) {
 				snippets.push(stringInterpolate(template, context));
@@ -356,11 +379,14 @@ async function newJavaFileWithContents(
 	}
 
 	const workspaceEdit: WorkspaceEdit = new WorkspaceEdit();
+
 	const fsUri: Uri = Uri.file(fsPath);
 	workspaceEdit.createFile(fsUri);
 	workspaceEdit.insert(fsUri, new Position(0, 0), snippets.join("\n"));
 	await workspace.applyEdit(workspaceEdit);
+
 	const editor = await window.showTextDocument(fsUri);
+
 	if (editor) {
 		editor.document.save();
 	}
@@ -368,17 +394,22 @@ async function newJavaFileWithContents(
 
 function resolveTypeName(filePath: string): string {
 	const fileName: string = path.basename(filePath);
+
 	const extName: string = path.extname(fileName);
+
 	return fileName.substring(0, fileName.length - extName.length);
 }
 
 async function newUntitledJavaFile(): Promise<void> {
 	await commands.executeCommand("workbench.action.files.newUntitledFile");
+
 	const textEditor: TextEditor | undefined = window.activeTextEditor;
+
 	if (!textEditor) {
 		return;
 	}
 	await languages.setTextDocumentLanguage(textEditor.document, "java");
+
 	const snippets: string[] = [];
 	snippets.push(
 		`public \${1|class,interface,enum,abstract class,@interface|} \${2:Main} {`,
@@ -392,11 +423,13 @@ async function newUntitledJavaFile(): Promise<void> {
 function isLanguageServerReady(): boolean {
 	const javaLanguageSupport: Extension<any> | undefined =
 		extensions.getExtension(ExtensionName.JAVA_LANGUAGE_SUPPORT);
+
 	if (!javaLanguageSupport || !javaLanguageSupport.isActive) {
 		return false;
 	}
 
 	const extensionApi: any = javaLanguageSupport.exports;
+
 	if (!extensionApi) {
 		return false;
 	}
@@ -428,13 +461,16 @@ async function inferPackageFsPath(): Promise<string> {
 	}
 
 	const fileUri: Uri = window.activeTextEditor.document.uri;
+
 	const workspaceFolder: WorkspaceFolder | undefined =
 		workspace.getWorkspaceFolder(fileUri);
+
 	if (!workspaceFolder) {
 		return "";
 	}
 
 	const filePath: string = window.activeTextEditor.document.uri.fsPath;
+
 	if (sourcePaths) {
 		for (const sourcePath of sourcePaths) {
 			if (!path.relative(sourcePath, filePath).startsWith("..")) {
@@ -454,13 +490,16 @@ function getPackageFsPathFromActiveEditor() {
 	}
 
 	const fileUri: Uri = window.activeTextEditor.document.uri;
+
 	const workspaceFolder: WorkspaceFolder | undefined =
 		workspace.getWorkspaceFolder(fileUri);
+
 	if (!workspaceFolder) {
 		return "";
 	}
 
 	const filePath: string = window.activeTextEditor.document.uri.fsPath;
+
 	if (filePath.endsWith(".java")) {
 		return path.dirname(filePath);
 	}
@@ -487,6 +526,7 @@ async function isVersionLessThan(
 	targetVersion: number,
 ): Promise<boolean> {
 	let projectSettings: any = {};
+
 	try {
 		projectSettings = await commands.executeCommand<any>(
 			Commands.EXECUTE_WORKSPACE_COMMAND,
@@ -499,7 +539,9 @@ async function isVersionLessThan(
 	}
 
 	let javaVersion = 0;
+
 	let complianceVersion = projectSettings[COMPLIANCE];
+
 	if (complianceVersion) {
 		// Ignore '1.' prefix for legacy Java versions
 		if (complianceVersion.startsWith("1.")) {
@@ -508,7 +550,9 @@ async function isVersionLessThan(
 
 		// look into the interesting bits now
 		const regexp = /\d+/g;
+
 		const match = regexp.exec(complianceVersion);
+
 		if (match) {
 			javaVersion = parseInt(match[0], 10);
 		}
@@ -534,6 +578,7 @@ async function resolvePackageName(filePath: string): Promise<string> {
 	for (const sourcePath of sourcePaths) {
 		if (isPrefix(sourcePath, filePath)) {
 			const relative = path.relative(sourcePath, path.dirname(filePath));
+
 			return relative.replace(/[/\\]/g, ".");
 		}
 	}
@@ -543,6 +588,7 @@ async function resolvePackageName(filePath: string): Promise<string> {
 
 function guessPackageName(filePath: string): string {
 	const packagePath: string = path.dirname(filePath);
+
 	const knownSourcePathPrefixes: string[] = [
 		"src/main/java/",
 		"src/test/java/",
@@ -552,6 +598,7 @@ function guessPackageName(filePath: string): string {
 
 	for (const prefix of knownSourcePathPrefixes) {
 		const index: number = packagePath.lastIndexOf(prefix);
+
 		if (index > -1) {
 			return packagePath
 				.substring(index + prefix.length)
@@ -564,6 +611,7 @@ function guessPackageName(filePath: string): string {
 
 function isPrefix(parentPath: string, filePath: string): boolean {
 	const relative = path.relative(parentPath, filePath);
+
 	return (
 		!relative || (!relative.startsWith("..") && !path.isAbsolute(relative))
 	);
@@ -573,12 +621,14 @@ async function getPackageFsPath(node: DataNode): Promise<string | undefined> {
 	if (node.nodeData.kind === NodeKind.Project) {
 		const childrenNodes: DataNode[] =
 			(await node.getChildren()) as DataNode[];
+
 		const packageRoots: any[] = childrenNodes.filter((child) => {
 			return (
 				child.nodeData.kind === NodeKind.PackageRoot &&
 				!resourceRoots.includes(child.name)
 			);
 		});
+
 		if (packageRoots.length < 1) {
 			// This might happen for an invisible project with "_" as its root
 			const packageNode: DataNode | undefined = childrenNodes.find(
@@ -586,6 +636,7 @@ async function getPackageFsPath(node: DataNode): Promise<string | undefined> {
 					return child.nodeData.kind === NodeKind.Package;
 				},
 			);
+
 			if (!packageNode && node.uri) {
 				// This means the .java files are in the default package.
 				return Uri.parse(node.uri).fsPath;
@@ -605,11 +656,13 @@ async function getPackageFsPath(node: DataNode): Promise<string | undefined> {
 					fsPath: Uri.parse(root.uri).fsPath,
 				};
 			});
+
 			const choice: ISourceRootPickItem | undefined =
 				await window.showQuickPick(options, {
 					placeHolder: "Choose a source folder",
 					ignoreFocusOut: true,
 				});
+
 			return choice?.fsPath;
 		}
 	} else if (node.nodeData.kind === NodeKind.PrimaryType) {
@@ -634,6 +687,7 @@ export async function newPackage(
 	}
 
 	const isUri = node instanceof Uri;
+
 	if (!isUri && (!node.uri || !canCreatePackage(node))) {
 		return;
 	}
@@ -646,7 +700,9 @@ export async function newPackage(
 		(isUri
 			? await getPackageInformationFromUri(node)
 			: await getPackageInformationFromNode(node)) || {};
+
 	let defaultValue = tempDefaultValue;
+
 	if (defaultValue === undefined || packageRootPath === undefined) {
 		return;
 	}
@@ -662,6 +718,7 @@ export async function newPackage(
 		ignoreFocusOut: true,
 		validateInput: async (value: string): Promise<string> => {
 			const checkMessage: string = checkJavaQualifiedName(value);
+
 			if (checkMessage) {
 				return checkMessage;
 			}
@@ -690,6 +747,7 @@ async function getPackageInformationFromUri(
 		defaultValue: "",
 		packageRootPath: uri.fsPath,
 	};
+
 	if (!isLanguageServerReady()) {
 		return defaultValue;
 	}
@@ -706,6 +764,7 @@ async function getPackageInformationFromUri(
 	for (const sourcePath of sourcePaths) {
 		if (isPrefix(sourcePath, uri.fsPath)) {
 			const relative = path.relative(sourcePath, uri.fsPath);
+
 			return {
 				defaultValue: relative.replace(/[/\\]/g, "."),
 				packageRootPath: sourcePath,
@@ -720,6 +779,7 @@ async function getPackageInformationFromNode(
 	node: DataNode,
 ): Promise<Record<string, string> | undefined> {
 	const nodeKind = node.nodeData.kind;
+
 	if (nodeKind === NodeKind.Project) {
 		return {
 			packageRootPath: (await getPackageFsPath(node)) || "",
@@ -740,14 +800,19 @@ async function getPackageInformationFromNode(
 		};
 	} else if (nodeKind === NodeKind.PrimaryType) {
 		const primaryTypeNode = <PrimaryTypeNode>node;
+
 		const packageRootPath = primaryTypeNode.getPackageRootPath();
+
 		if (packageRootPath === "") {
 			window.showErrorMessage("Failed to get the package root path.");
+
 			return undefined;
 		}
 		const packagePath = await getPackageFsPath(node);
+
 		if (!packagePath) {
 			window.showErrorMessage("Failed to get the package path.");
+
 			return undefined;
 		}
 		return {
@@ -774,6 +839,7 @@ function getPackageRootPath(
 	packageName: string,
 ): string {
 	const numberOfSegment: number = packageName.split(".").length;
+
 	return path.join(packageFsPath, ...Array(numberOfSegment).fill(".."));
 }
 
@@ -803,8 +869,10 @@ interface ISourcePath {
 
 export async function newFile(node: DataNode): Promise<void> {
 	const basePath = getBasePath(node);
+
 	if (!basePath) {
 		window.showErrorMessage("The selected node is invalid.");
+
 		return;
 	}
 
@@ -822,6 +890,7 @@ export async function newFile(node: DataNode): Promise<void> {
 
 	// any continues separator will be deduplicated.
 	const relativePath = fileName.replace(/[/\\]+/g, path.sep);
+
 	const newFilePath = path.join(basePath, relativePath);
 	await createFile(newFilePath);
 }
@@ -831,11 +900,13 @@ async function createFile(newFilePath: string) {
 		if (err) {
 			setUserError(err);
 			sendError(err);
+
 			const choice = await window.showErrorMessage(
 				err.message ||
 					"Failed to create file: " + path.basename(newFilePath),
 				"Retry",
 			);
+
 			if (choice === "Retry") {
 				await createFile(newFilePath);
 			}
@@ -847,8 +918,10 @@ async function createFile(newFilePath: string) {
 
 export async function newFolder(node: DataNode): Promise<void> {
 	const basePath = getBasePath(node);
+
 	if (!basePath) {
 		window.showErrorMessage("The selected node is invalid.");
+
 		return;
 	}
 
@@ -866,6 +939,7 @@ export async function newFolder(node: DataNode): Promise<void> {
 
 	// any continues separator will be deduplicated.
 	const relativePath = folderName.replace(/[/\\]+/g, path.sep);
+
 	const newFolderPath = path.join(basePath, relativePath);
 	fse.mkdirs(newFolderPath);
 }
@@ -875,6 +949,7 @@ async function validateNewFileFolder(
 	relativePath: string,
 ): Promise<string> {
 	relativePath = relativePath.replace(/[/\\]+/g, path.sep);
+
 	if (await fse.pathExists(path.join(basePath, relativePath))) {
 		return "A file or folder already exists in the target location.";
 	}
@@ -888,20 +963,24 @@ function getBasePath(node: DataNode): string | undefined {
 	}
 
 	const uri: Uri = Uri.parse(node.uri);
+
 	if (uri.scheme !== "file") {
 		return undefined;
 	}
 
 	const nodeKind = node.nodeData.kind;
+
 	switch (nodeKind) {
 		case NodeKind.Project:
 		case NodeKind.PackageRoot:
 		case NodeKind.Package:
 		case NodeKind.Folder:
 			return Uri.parse(node.uri!).fsPath;
+
 		case NodeKind.PrimaryType:
 		case NodeKind.File:
 			return path.dirname(Uri.parse(node.uri).fsPath);
+
 		default:
 			return undefined;
 	}
@@ -913,6 +992,7 @@ async function getSourceRoots(): Promise<IListCommandResult | undefined> {
 			Commands.EXECUTE_WORKSPACE_COMMAND,
 			Commands.LIST_SOURCEPATHS,
 		);
+
 		if (result?.data?.length) {
 			return result;
 		}

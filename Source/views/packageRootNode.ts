@@ -46,6 +46,7 @@ export class PackageRootNode extends DataNode {
 
 	protected createChildNodeList(): ExplorerNode[] {
 		const result: (ExplorerNode | undefined)[] = [];
+
 		if (this.nodeData.children && this.nodeData.children.length) {
 			this.nodeData.children.forEach((nodeData) => {
 				result.push(
@@ -58,6 +59,7 @@ export class PackageRootNode extends DataNode {
 
 	protected get description(): string | boolean | undefined {
 		const data = <IPackageRootNodeData>this.nodeData;
+
 		if (data.entryKind === PackageRootKind.K_BINARY) {
 			return data.path;
 		} else {
@@ -67,9 +69,12 @@ export class PackageRootNode extends DataNode {
 
 	protected get contextValue(): string {
 		const data = <IPackageRootNodeData>this.nodeData;
+
 		let contextValue: string;
+
 		if (data.entryKind === PackageRootKind.K_BINARY) {
 			contextValue = Explorer.ContextValueType.Jar;
+
 			const parent = <ContainerNode>this.getParent();
 			// currently, we only support editing referenced libraries in unmanaged folders
 			if (
@@ -81,6 +86,7 @@ export class PackageRootNode extends DataNode {
 			return contextValue;
 		} else {
 			contextValue = Explorer.ContextValueType.PackageRoot;
+
 			if (isTest(data)) {
 				contextValue += "+test";
 			}
@@ -101,6 +107,7 @@ export class PackageRootNode extends DataNode {
 
 	protected get iconPath(): ThemeIcon {
 		const data = <IPackageRootNodeData>this.nodeData;
+
 		if (data.moduleName || data.entryKind === PackageRootKind.K_SOURCE) {
 			return new ThemeIcon("file-submodule");
 		}

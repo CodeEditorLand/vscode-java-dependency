@@ -75,6 +75,7 @@ export async function executeExportJarTask(node?: INodeData): Promise<void> {
 		return;
 	}
 	isExportingJar = true;
+
 	const stepMetadata: IStepMetadata = {
 		entry: node,
 		taskLabel: "default",
@@ -83,9 +84,11 @@ export async function executeExportJarTask(node?: INodeData): Promise<void> {
 		elements: [],
 		classpaths: [],
 	};
+
 	try {
 		const resolveJavaProjectExecutor: IExportJarStepExecutor | undefined =
 			stepMap.get(ExportJarStep.ResolveJavaProject);
+
 		if (!resolveJavaProjectExecutor) {
 			throw new Error(
 				ExportJarMessages.stepErrorMessage(
@@ -103,6 +106,7 @@ export async function executeExportJarTask(node?: INodeData): Promise<void> {
 			failMessage(`${err}`);
 		}
 		isExportingJar = false;
+
 		return;
 	}
 }
@@ -125,6 +129,7 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 			elements: [],
 			mainClass: undefined,
 		};
+
 		const task: Task = new Task(
 			defaultDefinition,
 			stepMetadata.workspaceFolder,
@@ -142,6 +147,7 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 			),
 		);
 		task.presentationOptions.reveal = TaskRevealKind.Never;
+
 		return task;
 	}
 
@@ -164,9 +170,12 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 		const definition: IExportJarTaskDefinition = <IExportJarTaskDefinition>(
 			task.definition
 		);
+
 		const folder: WorkspaceFolder = <WorkspaceFolder>task.scope;
+
 		try {
 			const projectList = await Jdtls.getProjects(folder.uri.toString());
+
 			const resolvedTask: Task = new Task(
 				definition,
 				folder,
@@ -185,6 +194,7 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 							elements: [],
 							classpaths: [],
 						};
+
 						return new ExportJarTaskTerminal(
 							resolvedDefinition,
 							stepMetadata,
@@ -193,6 +203,7 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 				),
 			);
 			resolvedTask.presentationOptions.reveal = TaskRevealKind.Never;
+
 			return resolvedTask;
 		} catch (e) {
 			return task;
@@ -205,6 +216,7 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 		}
 		const folders: readonly WorkspaceFolder[] =
 			workspace.workspaceFolders || [];
+
 		if (_.isEmpty(folders)) {
 			return undefined;
 		}
@@ -212,12 +224,15 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 			return this.tasks;
 		}
 		this.tasks = [];
+
 		for (const folder of folders) {
 			try {
 				const projectList: INodeData[] = await Jdtls.getProjects(
 					folder.uri.toString(),
 				);
+
 				const elementList: string[] = [];
+
 				if (_.isEmpty(projectList)) {
 					continue;
 				} else if (projectList.length === 1) {
@@ -243,6 +258,7 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 				}
 				const mainClasses: IMainClassInfo[] =
 					await Jdtls.getMainClasses(folder.uri.toString());
+
 				const defaultDefinition: IExportJarTaskDefinition = {
 					type: BuildArtifactTaskProvider.exportJarType,
 					mainClass:
@@ -252,6 +268,7 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 					targetPath: Settings.getExportJarTargetPath(),
 					elements: elementList,
 				};
+
 				const defaultTask: Task = new Task(
 					defaultDefinition,
 					folder,
@@ -271,6 +288,7 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 								elements: [],
 								classpaths: [],
 							};
+
 							return new ExportJarTaskTerminal(
 								resolvedDefinition,
 								stepMetadata,
@@ -279,6 +297,7 @@ export class BuildArtifactTaskProvider implements TaskProvider {
 					),
 					undefined,
 				);
+
 				defaultTask.presentationOptions.reveal = TaskRevealKind.Never;
 				this.tasks.push(defaultTask);
 			} catch (e) {
@@ -298,6 +317,7 @@ export class DeprecatedExportJarTaskProvider implements TaskProvider {
 
 	resolveTask(task: Task, _token: CancellationToken): ProviderResult<Task> {
 		sendInfo("", { name: "resolve-deprecated-export-task" });
+
 		return BuildArtifactTaskProvider.resolveExportTask(
 			task,
 			DeprecatedExportJarTaskProvider.type,
@@ -345,7 +365,9 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 	): Promise<void> {
 		activeTerminalMap.set(this.terminalId, this);
 		revealTerminal(this.stepMetadata.taskLabel);
+
 		let exportResult: boolean | undefined;
+
 		try {
 			if (!this.stepMetadata.workspaceFolder) {
 				throw new Error(
@@ -365,21 +387,26 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 					string,
 					string[]
 				>();
+
 				const artifactMap: Map<string, string[]> = new Map<
 					string,
 					string[]
 				>();
+
 				const testOutputFolderMap: Map<string, string[]> = new Map<
 					string,
 					string[]
 				>();
+
 				const testArtifactMap: Map<string, string[]> = new Map<
 					string,
 					string[]
 				>();
+
 				const projectList: INodeData[] = await Jdtls.getProjects(
 					this.stepMetadata.workspaceFolder.uri.toString(),
 				);
+
 				for (const project of projectList) {
 					await this.setClasspathMap(
 						project,
@@ -411,6 +438,7 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 			}
 		} finally {
 			isExportingJar = false;
+
 			if (exportResult === true) {
 				successMessage(this.stepMetadata.outputPath);
 				this.exit(
@@ -429,10 +457,14 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 
 	private async createJarFile(stepMetadata: IStepMetadata): Promise<boolean> {
 		let step: ExportJarStep = ExportJarStep.ResolveJavaProject;
+
 		let previousStep: ExportJarStep | undefined;
+
 		let executor: IExportJarStepExecutor | undefined;
+
 		while (step !== ExportJarStep.Finish) {
 			executor = stepMap.get(step);
+
 			if (!executor) {
 				throw new Error(
 					ExportJarMessages.stepErrorMessage(
@@ -444,6 +476,7 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 			if (!(await executor.execute(stepMetadata))) {
 				// Go back
 				previousStep = stepMetadata.steps.pop();
+
 				if (!previousStep) {
 					throw new Error(
 						ExportJarMessages.stepErrorMessage(
@@ -459,13 +492,19 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 				switch (step) {
 					case ExportJarStep.ResolveJavaProject:
 						step = ExportJarStep.ResolveMainClass;
+
 						break;
+
 					case ExportJarStep.ResolveMainClass:
 						step = ExportJarStep.GenerateJar;
+
 						break;
+
 					case ExportJarStep.GenerateJar:
 						step = ExportJarStep.Finish;
+
 						break;
+
 					default:
 						throw new Error(
 							ExportJarMessages.stepErrorMessage(
@@ -491,12 +530,16 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 		artifactMap: Map<string, string[]>,
 	): Promise<void> {
 		const extensionApi: any = await getExtensionApi();
+
 		const classpathResult: IClasspathResult =
 			await extensionApi.getClasspaths(project.uri, {
 				scope: classpathScope,
 			});
+
 		const outputFolders: string[] = [];
+
 		const artifacts: string[] = [];
+
 		for (const classpath of [
 			...classpathResult.classpaths,
 			...classpathResult.modulepaths,
@@ -518,13 +561,17 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 		testArtifactMap: Map<string, string[]>,
 	): Promise<IClasspath[]> {
 		const regExp: RegExp = /\${(.*?)(:.*)?}/;
+
 		let outputElements: string[] = [];
+
 		let artifacts: string[] = [];
+
 		for (const element of this.stepMetadata.elements) {
 			if (element.length === 0) {
 				continue;
 			}
 			const matchResult: RegExpMatchArray | null = element.match(regExp);
+
 			if (
 				matchResult === null ||
 				_.isEmpty(matchResult) ||
@@ -539,6 +586,7 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 			}
 			const projectName: string | undefined =
 				matchResult[2]?.substring(1);
+
 			switch (matchResult[1]) {
 				case ExportJarConstants.DEPENDENCIES:
 					artifacts = artifacts.concat(
@@ -548,7 +596,9 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 							projectName,
 						),
 					);
+
 					break;
+
 				case ExportJarConstants.TEST_DEPENDENCIES:
 					artifacts = artifacts.concat(
 						this.getJarElementsFromClasspathMapping(
@@ -557,7 +607,9 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 							projectName,
 						),
 					);
+
 					break;
+
 				case ExportJarConstants.COMPILE_OUTPUT:
 					outputElements = outputElements.concat(
 						this.getJarElementsFromClasspathMapping(
@@ -566,7 +618,9 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 							projectName,
 						),
 					);
+
 					break;
+
 				case ExportJarConstants.TEST_COMPILE_OUTPUT:
 					outputElements = outputElements.concat(
 						this.getJarElementsFromClasspathMapping(
@@ -575,11 +629,14 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 							projectName,
 						),
 					);
+
 					break;
 			}
 		}
 		const trie: Trie<IUriData> = new Trie<IUriData>();
+
 		const globPatterns: string[] = [];
+
 		for (const outputElement of outputElements) {
 			if (outputElement.length === 0) {
 				continue;
@@ -590,6 +647,7 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 						? toWinPath(outputElement)
 						: outputElement,
 				);
+
 				const uriData: IUriData = {
 					uri: uri.toString(),
 				};
@@ -598,6 +656,7 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 			globPatterns.push(outputElement);
 		}
 		const sources: IClasspath[] = [];
+
 		for (const glob of await globby(globPatterns)) {
 			const tireNode: TrieNode<IUriData | undefined> | undefined =
 				trie.find(
@@ -605,10 +664,12 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 						.fsPath,
 					/* returnEarly = */ true,
 				);
+
 			if (!tireNode?.value?.uri) {
 				continue;
 			}
 			let fsPath = Uri.parse(tireNode.value.uri).fsPath;
+
 			if ((await lstat(fsPath)).isFile()) {
 				fsPath = dirname(fsPath);
 			}
@@ -638,12 +699,14 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 		projectName: string | undefined,
 	): string[] {
 		const result: string[] = [];
+
 		if (!matchResult.input) {
 			return result;
 		}
 		if (projectName !== undefined) {
 			const entries: string[] =
 				rawClasspathEntries.get(projectName) || [];
+
 			if (_.isEmpty(entries)) {
 				return result;
 			}
@@ -681,7 +744,9 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 			);
 		}
 		const negative: boolean = path[0] === "!";
+
 		let positivePath: string = negative ? path.substring(1) : path;
+
 		if (!isAbsolute(positivePath)) {
 			positivePath = join(
 				this.stepMetadata.workspaceFolder.uri.fsPath,
@@ -689,12 +754,14 @@ class ExportJarTaskTerminal implements Pseudoterminal {
 			);
 		}
 		positivePath = toPosixPath(positivePath);
+
 		return negative ? "!" + positivePath : positivePath;
 	}
 }
 
 export function appendOutput(terminalId: string, message: string): void {
 	const terminal = activeTerminalMap.get(terminalId);
+
 	if (!terminal) {
 		return;
 	}

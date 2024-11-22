@@ -34,12 +34,15 @@ export class NodeFactory {
 		rootNode?: DataNode,
 	): ExplorerNode | undefined {
 		const isHierarchicalView = Settings.isHierarchicalView();
+
 		try {
 			switch (nodeData.kind) {
 				case NodeKind.Workspace:
 					return new WorkspaceNode(nodeData, parent);
+
 				case NodeKind.Project:
 					return new ProjectNode(nodeData, parent);
+
 				case NodeKind.Container:
 					if (!parent || !project) {
 						throw new Error(
@@ -48,6 +51,7 @@ export class NodeFactory {
 					}
 
 					return new ContainerNode(nodeData, parent, project);
+
 				case NodeKind.PackageRoot:
 					if (!parent || !project) {
 						throw new Error(
@@ -63,6 +67,7 @@ export class NodeFactory {
 						);
 					}
 					return new PackageRootNode(nodeData, parent, project);
+
 				case NodeKind.Package:
 					if (!parent || !project || !rootNode) {
 						throw new Error(
@@ -79,6 +84,7 @@ export class NodeFactory {
 						);
 					}
 					return new PackageNode(nodeData, parent, project, rootNode);
+
 				case NodeKind.PrimaryType:
 					if (
 						nodeData.metaData &&
@@ -93,6 +99,7 @@ export class NodeFactory {
 						return new PrimaryTypeNode(nodeData, parent, rootNode);
 					}
 					return undefined;
+
 				case NodeKind.Folder:
 					if (!parent || !project) {
 						throw new Error(
@@ -101,6 +108,7 @@ export class NodeFactory {
 					}
 
 					return new FolderNode(nodeData, parent, project, rootNode);
+
 				case NodeKind.CompilationUnit:
 				case NodeKind.ClassFile:
 				case NodeKind.File:
@@ -109,11 +117,13 @@ export class NodeFactory {
 					}
 
 					return new FileNode(nodeData, parent);
+
 				default:
 					throw new Error(`Unsupported node kind: ${nodeData.kind}`);
 			}
 		} catch (error) {
 			sendError(new Error(`Unsupported node kind: ${nodeData.kind}`));
+
 			return undefined;
 		}
 	}

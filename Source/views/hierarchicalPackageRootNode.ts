@@ -19,7 +19,9 @@ export class HierarchicalPackageRootNode extends PackageRootNode {
 		paths: INodeData[],
 	): Promise<DataNode | undefined> {
 		const hierarchicalNodeData = paths[0];
+
 		const children: ExplorerNode[] = await this.getChildren();
+
 		const childNode = <DataNode>(
 			children.find(
 				(child: DataNode) =>
@@ -39,7 +41,9 @@ export class HierarchicalPackageRootNode extends PackageRootNode {
 
 	protected createChildNodeList(): ExplorerNode[] {
 		const result: (ExplorerNode | undefined)[] = [];
+
 		const packageData: any[] = [];
+
 		if (this.nodeData.children && this.nodeData.children.length) {
 			this.nodeData.children.forEach((nodeData) => {
 				if (nodeData.kind === NodeKind.Package) {
@@ -64,6 +68,7 @@ export class HierarchicalPackageRootNode extends PackageRootNode {
 				HierarchicalPackageNodeData.createHierarchicalNodeDataByPackageList(
 					packageData,
 				);
+
 			if (data) {
 				result.push(
 					...data.children.map((d) =>

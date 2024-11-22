@@ -33,6 +33,7 @@ export class FolderNode extends DataNode {
 
 	protected createChildNodeList(): ExplorerNode[] {
 		const result: (ExplorerNode | undefined)[] = [];
+
 		if (this.nodeData.children && this.nodeData.children.length) {
 			this.nodeData.children.forEach((nodeData) => {
 				result.push(

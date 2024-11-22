@@ -16,7 +16,9 @@ export class Trie<T extends IUriData> {
 			return;
 		}
 		let currentNode: TrieNode<T | undefined> = this.root;
+
 		const fsPath: string = Uri.parse(input.uri).fsPath;
+
 		const segments: string[] = fsPath.split(path.sep);
 
 		for (const segment of segments) {
@@ -37,6 +39,7 @@ export class Trie<T extends IUriData> {
 		returnEarly: boolean = false,
 	): TrieNode<T | undefined> | undefined {
 		let currentNode = this.root;
+
 		const segments: string[] = fsPath.split(path.sep);
 
 		for (const segment of segments) {
@@ -60,7 +63,9 @@ export class Trie<T extends IUriData> {
 		fsPath: string,
 	): TrieNode<T | undefined> | undefined {
 		let currentNode: TrieNode<T | undefined> = this.root;
+
 		let res: TrieNode<T | undefined> | undefined;
+
 		const segments: string[] = fsPath.split(path.sep);
 
 		for (const segment of segments) {

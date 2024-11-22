@@ -24,9 +24,11 @@ export async function updateExportTaskType(
 
 export async function setContextForDeprecatedTasks(): Promise<void> {
 	await contextManager.setContextValue(Context.SHOW_DEPRECATED_TASKS, true);
+
 	const deprecatedTasks = await tasks.fetchTasks({
 		type: DeprecatedExportJarTaskProvider.type,
 	});
+
 	if (deprecatedTasks?.length) {
 		return;
 	}

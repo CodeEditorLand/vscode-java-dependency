@@ -62,10 +62,13 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
             if (!node.uri) {
                 sendError(new Error("Uri not available when reloading project"));
                 window.showErrorMessage("The URI of the project is not available, you can try to trigger the command 'Java: Reload Project' from Command Palette.");
+
                 return;
             }
             const pattern: RelativePattern = new RelativePattern(Uri.parse(node.uri).fsPath?.replace(/[\\\/]+$/, ""), "{pom.xml,*.gradle}");
+
             const uris: Uri[] = await workspace.findFiles(pattern, null /*exclude*/, 1 /*maxResults*/);
+
             if (uris.length >= 1) {
                 commands.executeCommand(Commands.JAVA_PROJECT_CONFIGURATION_UPDATE, uris[0]);
             }
@@ -74,6 +77,7 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
             if (!node.uri) {
                 sendError(new Error("Uri not available when building project"));
                 window.showErrorMessage("The URI of the project is not available, you can try to trigger the command 'Java: Rebuild Projects' from Command Palette.");
+
                 return;
             }
             commands.executeCommand(Commands.BUILD_PROJECT, Uri.parse(node.uri), true);
@@ -133,6 +137,7 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
         }
 
         explorerNodeCache.saveNodes(children || []);
+
         return children;
     }
 
@@ -142,20 +147,26 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 
     public async revealPaths(paths: INodeData[]): Promise<DataNode | undefined> {
         const projectNodeData = paths.shift();
+
         const projects = await this.getRootProjects();
+
         const project = projects ? <DataNode>projects.find((node: DataNode) =>
             node.path === projectNodeData?.path && node.nodeData.name === projectNodeData?.name) : undefined;
+
         return project?.revealPaths(paths);
     }
 
     public async getRootProjects(): Promise<ExplorerNode[]> {
         const rootElements = await this.getRootNodes();
+
         if (rootElements[0] instanceof ProjectNode) {
             return rootElements;
         } else {
             let result: ExplorerNode[] = [];
+
             for (const rootWorkspace of rootElements) {
                 const projects = await rootWorkspace.getChildren();
+
                 if (projects) {
                     result = result.concat(projects);
                 }
@@ -182,13 +193,17 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
             }
 
             const hasJavaError: boolean = await Jdtls.checkImportStatus();
+
             if (hasJavaError) {
                 contextManager.setContextValue(Context.IMPORT_FAILED, true);
+
                 return [];
             }
 
             const rootItems: ExplorerNode[] = [];
+
             const folders = workspace.workspaceFolders;
+
             if (folders && folders.length) {
                 if (folders.length > 1) {
                     folders.forEach((folder) => rootItems.push(new WorkspaceNode({
@@ -206,6 +221,7 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
                 }
             }
             contextManager.setContextValue(Context.NO_JAVA_PROJECT, _.isEmpty(rootItems));
+
             return rootItems;
         } finally {
             explorerLock.release();

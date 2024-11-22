@@ -27,7 +27,9 @@ export class ProjectNode extends DataNode {
 
 		// invisible project uri is not contained in workspace
 		const childNodeData = paths[0];
+
 		const children: ExplorerNode[] = await this.getChildren();
+
 		if (!children) {
 			return undefined;
 		}
@@ -56,6 +58,7 @@ export class ProjectNode extends DataNode {
 
 	public isUnmanagedFolder(): boolean {
 		const natureIds: string[] = this.nodeData.metaData?.[NATURE_ID] || [];
+
 		for (const natureId of natureIds) {
 			if (natureId === NatureId.UnmanagedFolder) {
 				return true;
@@ -73,7 +76,9 @@ export class ProjectNode extends DataNode {
 
 	protected createChildNodeList(): ExplorerNode[] {
 		const result: (ExplorerNode | undefined)[] = [];
+
 		const packageData: any[] = [];
+
 		if (this.nodeData.children?.length) {
 			this.nodeData.children.forEach((nodeData) => {
 				if (nodeData.kind === NodeKind.Package) {
@@ -90,6 +95,7 @@ export class ProjectNode extends DataNode {
 					HierarchicalPackageNodeData.createHierarchicalNodeDataByPackageList(
 						packageData,
 					);
+
 				if (data) {
 					result.push(
 						...data.children.map((d) =>
@@ -115,8 +121,10 @@ export class ProjectNode extends DataNode {
 
 	protected get contextValue(): string {
 		let contextValue: string = Explorer.ContextValueType.Project;
+
 		const natureIds: string[] | undefined =
 			this.nodeData.metaData?.[NATURE_ID];
+
 		if (natureIds) {
 			const attributeString: string = getProjectTypeAttributes(natureIds);
 			contextValue += attributeString;
@@ -130,8 +138,10 @@ export class ProjectNode extends DataNode {
 
 function getProjectTypeAttributes(natureIds: string[]): string {
 	let attributeString: string = "";
+
 	for (const natureId of natureIds) {
 		const readableNature: string = getProjectType(natureId);
+
 		if (readableNature) {
 			attributeString += `+${readableNature}`;
 		}
@@ -143,14 +153,19 @@ function getProjectType(natureId: string): string {
 	switch (natureId) {
 		case NatureId.Java:
 			return ReadableNature.Java;
+
 		case NatureId.Maven:
 			return ReadableNature.Maven;
+
 		case NatureId.Gradle:
 			return ReadableNature.Gradle;
+
 		case NatureId.BspGradle:
 			return ReadableNature.BspGradle;
+
 		case NatureId.UnmanagedFolder:
 			return ReadableNature.UnmanagedFolder;
+
 		default:
 			return "";
 	}

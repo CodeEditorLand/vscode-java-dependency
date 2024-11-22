@@ -34,6 +34,7 @@ export class DocumentSymbolNode extends ExplorerNode {
 
     public getChildren(): ExplorerNode[] | Promise<ExplorerNode[]> {
         const res: ExplorerNode[] = [];
+
         if (this.symbolInfo?.children?.length) {
             this.symbolInfo.children.forEach((child) => {
                 res.push(new DocumentSymbolNode(child, this.getParent() as PrimaryTypeNode));
@@ -48,6 +49,7 @@ export class DocumentSymbolNode extends ExplorerNode {
                 : TreeItemCollapsibleState.None);
         item.iconPath = this.iconPath;
         item.command = this.command;
+
         return item;
     }
 
@@ -63,6 +65,7 @@ export class DocumentSymbolNode extends ExplorerNode {
     protected get iconPath(): ThemeIcon {
         if (this._iconMap.has(this.symbolInfo.kind)) {
             const symbolKind = this._iconMap.get(this.symbolInfo.kind);
+
             return new ThemeIcon(`symbol-${symbolKind}`);
         }
         return new ThemeIcon("symbol-misc");

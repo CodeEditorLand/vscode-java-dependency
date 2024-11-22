@@ -27,6 +27,7 @@ export class PrimaryTypeNode extends DataNode {
         }
 
         const unmanagedFolder = this.getUnmanagedFolderAncestor();
+
         if (unmanagedFolder?.uri) {
             return Uri.parse(unmanagedFolder.uri).fsPath;
         }
@@ -50,6 +51,7 @@ export class PrimaryTypeNode extends DataNode {
 
     protected createChildNodeList(): ExplorerNode[] {
         const result: ExplorerNode[] = [];
+
         if (this.nodeData.children && this.nodeData.children.length) {
             for (const child of this.nodeData.children) {
                 const documentSymbol: DocumentSymbol = child as DocumentSymbol;
@@ -71,8 +73,10 @@ export class PrimaryTypeNode extends DataNode {
         switch (this.nodeData.metaData?.[PrimaryTypeNode.K_TYPE_KIND]) {
             case TypeKind.Enum:
                 return new ThemeIcon("symbol-enum");
+
             case TypeKind.Interface:
                 return new ThemeIcon("symbol-interface");
+
             default:
                 return new ThemeIcon("symbol-class");
         }
@@ -84,9 +88,12 @@ export class PrimaryTypeNode extends DataNode {
 
     private async getSymbols(document: TextDocument): Promise<SymbolInformation[] | DocumentSymbol[] | undefined> {
         let error;
+
         const operationId = createUuid();
+
         const startAt: number = Date.now();
         sendOperationStart(operationId, "vscode.executeDocumentSymbolProvider");
+
         try {
             return await commands.executeCommand<SymbolInformation[]>(
                 "vscode.executeDocumentSymbolProvider",
@@ -94,6 +101,7 @@ export class PrimaryTypeNode extends DataNode {
             );
         } catch (err) {
             error = err;
+
             throw err;
         } finally {
             const duration = Date.now() - startAt;
@@ -111,6 +119,7 @@ export class PrimaryTypeNode extends DataNode {
 
     protected get contextValue(): string {
         let contextValue: string = Explorer.ContextValueType.Type;
+
         const type = this.nodeData.metaData?.[PrimaryTypeNode.K_TYPE_KIND];
 
         if (type === TypeKind.Enum) {
@@ -139,6 +148,7 @@ export class PrimaryTypeNode extends DataNode {
      */
     private getUnmanagedFolderAncestor(): ProjectNode | undefined {
         let ancestor = this.getParent();
+
         while (ancestor && !(ancestor instanceof ProjectNode)) {
             ancestor = ancestor.getParent();
         }

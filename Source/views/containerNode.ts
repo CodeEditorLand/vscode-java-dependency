@@ -27,6 +27,7 @@ export class ContainerNode extends DataNode {
         }
 
         const containerPath: string = this._nodeData.path || "";
+
         if (containerPath.startsWith(ContainerPath.JRE)) {
             this._containerType = ContainerType.JRE;
         } else if (containerPath.startsWith(ContainerPath.Maven)) {
@@ -53,6 +54,7 @@ export class ContainerNode extends DataNode {
 
     protected createChildNodeList(): ExplorerNode[] {
         const result: (ExplorerNode | undefined)[] = [];
+
         if (this.nodeData.children && this.nodeData.children.length) {
             this.nodeData.children.forEach((nodeData) => {
                 result.push(NodeFactory.createNode(nodeData, this, this._project));
@@ -63,7 +65,9 @@ export class ContainerNode extends DataNode {
 
     protected get contextValue(): string {
         let contextValue: string = Explorer.ContextValueType.Container;
+
         const containerType: string = this.getContainerType();
+
         if (containerType) {
             contextValue += `+${containerType}`;
         }

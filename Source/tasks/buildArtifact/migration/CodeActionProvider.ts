@@ -14,6 +14,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
     public provideCodeActions(document: vscode.TextDocument, range: vscode.Range | vscode.Selection,
                               _context: vscode.CodeActionContext, _token: vscode.CancellationToken): vscode.CodeAction[] | undefined {
         const diagnostics = vscode.languages.getDiagnostics(document.uri);
+
         if (diagnostics?.length) {
             for (const diagnostic of diagnostics) {
                 if (diagnostic.source !== DiagnosticProvider.DIAGNOSTIC_SOURCE) {
@@ -28,6 +29,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
                             diagnostic.range
                         ]
                     };
+
                     return [{
                         title: CodeActionProvider.JAVA_UPDATE_DEPRECATED_TASK_TITLE,
                         kind: vscode.CodeActionKind.QuickFix,

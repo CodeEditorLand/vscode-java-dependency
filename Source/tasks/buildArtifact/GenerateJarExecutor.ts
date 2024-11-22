@@ -52,6 +52,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 		}
 		const folder: WorkspaceFolder | undefined =
 			stepMetadata.workspaceFolder;
+
 		if (!folder) {
 			throw new Error(
 				ExportJarMessages.fieldUndefinedMessage(
@@ -61,6 +62,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 			);
 		}
 		let destPath = "";
+
 		if (stepMetadata.outputPath === "") {
 			const outputUri: Uri | undefined = await window.showSaveDialog({
 				defaultUri: Uri.file(
@@ -70,12 +72,14 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 					"Java Archive": ["jar"],
 				},
 			});
+
 			if (!outputUri) {
 				return Promise.reject();
 			}
 			destPath = outputUri.fsPath;
 		} else {
 			const outputPath: string | undefined = stepMetadata.outputPath;
+
 			if (!outputPath) {
 				throw new Error(
 					ExportJarMessages.fieldUndefinedMessage(
@@ -96,6 +100,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 			await ensureDir(dirname(destPath));
 		}
 		destPath = normalize(destPath);
+
 		return window.withProgress(
 			{
 				location: ProgressLocation.Window,
@@ -107,6 +112,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 					token.onCancellationRequested(() => {
 						return reject();
 					});
+
 					const mainClass: string | undefined =
 						stepMetadata.mainClass;
 					// For "no main class" option, we get an empty string in stepMetadata.mainClass,
@@ -122,6 +128,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 						);
 					}
 					const classpaths: IClasspath[] = stepMetadata.classpaths;
+
 					if (_.isEmpty(classpaths)) {
 						return reject(
 							new Error(ExportJarMessages.CLASSPATHS_EMPTY),
@@ -140,8 +147,10 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 							stepMetadata.terminalId,
 							token,
 						);
+
 					if (exportResult === true) {
 						stepMetadata.outputPath = destPath;
+
 						return resolve(true);
 					} else {
 						return reject(new Error("Export jar failed."));
@@ -155,6 +164,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 		stepMetadata: IStepMetadata,
 	): Promise<boolean> {
 		const extensionApi: any = await getExtensionApi();
+
 		const dependencyItems: IJarQuickPickItem[] = await window.withProgress(
 			{
 				location: ProgressLocation.Window,
@@ -167,10 +177,14 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 						token.onCancellationRequested(() => {
 							return reject();
 						});
+
 						const pickItems: IJarQuickPickItem[] = [];
+
 						const uriSet: Set<string> = new Set<string>();
+
 						const projectList: INodeData[] =
 							stepMetadata.projectList;
+
 						if (_.isEmpty(projectList)) {
 							return reject(
 								new Error(ExportJarMessages.WORKSPACE_EMPTY),
@@ -178,6 +192,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 						}
 						const workspaceFolder: WorkspaceFolder | undefined =
 							stepMetadata.workspaceFolder;
+
 						if (!workspaceFolder) {
 							return reject(
 								new Error(
@@ -192,8 +207,11 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 							const projectUri: string =
 								project.metaData?.UnmanagedFolderInnerPath ||
 								project.uri;
+
 							let classpaths: IClasspathResult;
+
 							let testClasspaths: IClasspathResult;
+
 							try {
 								classpaths = await extensionApi.getClasspaths(
 									projectUri,
@@ -241,6 +259,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 				);
 			},
 		);
+
 		if (_.isEmpty(dependencyItems)) {
 			throw new Error(ExportJarMessages.PROJECT_EMPTY);
 		} else if (dependencyItems.length === 1) {
@@ -248,6 +267,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 				dependencyItems[0].path,
 				stepMetadata.classpaths,
 			);
+
 			return true;
 		}
 		dependencyItems.sort((node1, node2) => {
@@ -261,14 +281,18 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 			}
 			return node1.label.localeCompare(node2.label);
 		});
+
 		const pickedDependencyItems: IJarQuickPickItem[] = [];
+
 		for (const item of dependencyItems) {
 			if (item.picked) {
 				pickedDependencyItems.push(item);
 			}
 		}
 		const disposables: Disposable[] = [];
+
 		let result: boolean = false;
+
 		try {
 			result = await new Promise<boolean>(async (resolve, reject) => {
 				const pickBox = createPickBox<IJarQuickPickItem>(
@@ -326,12 +350,14 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 		classpaths: IClasspath[],
 	): Promise<void> {
 		const posixPath: string = toPosixPath(folderPath);
+
 		for (const path of await globby(posixPath)) {
 			const classpath: IClasspath = {
 				source: path,
 				destination: relative(posixPath, path),
 				isArtifact: false,
 			};
+
 			classpaths.push(classpath);
 		}
 	}
@@ -343,17 +369,21 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 		scope: string,
 	): Promise<IJarQuickPickItem[]> {
 		const dependencyItems: IJarQuickPickItem[] = [];
+
 		for (const classpath of paths) {
 			if ((await pathExists(classpath)) === false) {
 				continue;
 			}
 			const extName = extname(classpath);
+
 			const baseName = Uri.parse(classpath).fsPath.startsWith(
 				Uri.parse(projectPath).fsPath,
 			)
 				? relative(projectPath, classpath)
 				: basename(classpath);
+
 			const typeValue = extName === ".jar" ? "artifact" : "outputFolder";
+
 			if (!uriSet.has(classpath)) {
 				uriSet.add(classpath);
 				dependencyItems.push({
@@ -371,6 +401,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 
 export interface IClasspathResult {
 	projectRoot: string;
+
 	classpaths: string[];
 	modulepaths: string[];
 }

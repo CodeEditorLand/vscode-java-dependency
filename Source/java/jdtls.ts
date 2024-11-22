@@ -47,6 +47,7 @@ export namespace Jdtls {
 		const uri: Uri | null = !params.projectUri
 			? null
 			: Uri.parse(params.projectUri);
+
 		const excludePatterns: { [key: string]: boolean } | undefined =
 			workspace.getConfiguration("files", uri).get("exclude");
 
@@ -70,7 +71,9 @@ export namespace Jdtls {
 			const uriOfChildren: string[] = nodeData
 				.map((node: INodeData) => node.uri)
 				.filter(Boolean) as string[];
+
 			const urisToExclude: Set<string> = new Set<string>();
+
 			for (const pattern in excludePatterns) {
 				if (excludePatterns[pattern]) {
 					const toExclude: string[] = minimatch.match(

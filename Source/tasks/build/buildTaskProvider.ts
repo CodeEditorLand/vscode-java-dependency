@@ -38,6 +38,7 @@ export class BuildTaskProvider implements TaskProvider {
 	async provideTasks(): Promise<Task[]> {
 		const folders: readonly WorkspaceFolder[] =
 			workspace.workspaceFolders || [];
+
 		if (!folders.length) {
 			return [];
 		}
@@ -46,6 +47,7 @@ export class BuildTaskProvider implements TaskProvider {
 			paths: [BuildTaskProvider.workspace],
 			isFullBuild: true,
 		};
+
 		const defaultTask = new Task(
 			defaultTaskDefinition,
 			TaskScope.Workspace,
@@ -62,18 +64,23 @@ export class BuildTaskProvider implements TaskProvider {
 				},
 			),
 		);
+
 		defaultTask.detail =
 			"$(tools) Build all the Java projects in workspace.";
+
 		defaultTask.group = TaskGroup.Build;
+
 		defaultTask.presentationOptions = {
 			reveal: TaskRevealKind.Never,
 			clear: true,
 		};
+
 		return [defaultTask];
 	}
 
 	async resolveTask(task: Task): Promise<Task | undefined> {
 		const taskDefinition = task.definition as IBuildTaskDefinition;
+
 		if (!taskDefinition.paths?.length) {
 			taskDefinition.paths = [BuildTaskProvider.workspace];
 		} else {
@@ -96,6 +103,7 @@ export class BuildTaskProvider implements TaskProvider {
 			reveal: TaskRevealKind.Never,
 			clear: true,
 		};
+
 		return task;
 	}
 }
@@ -124,8 +132,10 @@ class BuildTaskTerminal implements Pseudoterminal {
 		// see: https://github.com/microsoft/vscode/issues/154146
 
 		let returnCode = Number.MAX_SAFE_INTEGER;
+
 		if (this.scope === TaskScope.Global) {
 			this.writeEmitter.fire("Global task is not supported.\r\n\r\n");
+
 			returnCode = ReturnCode.UnsupportedTask;
 		} else if (
 			this.definition.paths.length === 1 &&
@@ -152,6 +162,7 @@ class BuildTaskTerminal implements Pseudoterminal {
 		this.writeEmitter.fire(
 			"Building all the Java projects in workspace...\r\n\r\n",
 		);
+
 		try {
 			await commands.executeCommand(
 				Commands.COMPILE_WORKSPACE,
@@ -164,12 +175,14 @@ class BuildTaskTerminal implements Pseudoterminal {
 				this.writeEmitter.fire(
 					"Errors found when building the workspace, please open PROBLEMS view for details.\r\n\r\n",
 				);
+
 				return ReturnCode.UserError;
 			} else {
 				this.writeEmitter.fire(
 					"Errors occur when building the workspace:\r\n",
 				);
 				this.writeEmitter.fire(`${e}\r\n\r\n`);
+
 				return ReturnCode.CommandFail;
 			}
 		}
@@ -182,15 +195,18 @@ class BuildTaskTerminal implements Pseudoterminal {
 			this.definition.paths,
 			this.scope,
 		);
+
 		if (invalidPaths.length) {
 			this.printList(
 				"Following paths are invalid, please provide absolute paths instead:",
 				invalidPaths,
 			);
+
 			return ReturnCode.InvalidPath;
 		}
 
 		const projectUris: string[] = await Jdtls.getProjectUris();
+
 		const projectPaths: string[] = projectUris
 			.map((uri) => Uri.parse(uri).fsPath)
 			.filter((p) => path.basename(p) !== "jdt.ls-java-project");
@@ -216,7 +232,9 @@ class BuildTaskTerminal implements Pseudoterminal {
 		}
 
 		this.printList("Building following projects:", includedPaths);
+
 		const uris: Uri[] = includedPaths.map((p) => Uri.file(p));
+
 		try {
 			const res = await commands.executeCommand(
 				Commands.BUILD_PROJECT,
@@ -224,6 +242,7 @@ class BuildTaskTerminal implements Pseudoterminal {
 				this.definition.isFullBuild,
 				this.cancellationTokenSource.token,
 			);
+
 			switch (res) {
 				case Jdtls.CompileWorkspaceStatus.Witherror:
 					if (checkErrorsReportedByJavaExtension()) {
@@ -235,10 +254,13 @@ class BuildTaskTerminal implements Pseudoterminal {
 						);
 					}
 					return ReturnCode.UserError;
+
 				case Jdtls.CompileWorkspaceStatus.Cancelled:
 					return ReturnCode.Cancelled;
+
 				case Jdtls.CompileWorkspaceStatus.Failed:
 					return ReturnCode.CommandFail;
+
 				case Jdtls.CompileWorkspaceStatus.Succeed:
 					return ReturnCode.Success;
 			}
@@ -247,6 +269,7 @@ class BuildTaskTerminal implements Pseudoterminal {
 				`Error occurs when building the workspace:\r\n`,
 			);
 			this.writeEmitter.fire(`${e}\r\n\r\n`);
+
 			return ReturnCode.CommandFail;
 		}
 		return ReturnCode.Success;
@@ -254,6 +277,7 @@ class BuildTaskTerminal implements Pseudoterminal {
 
 	private printList(title: string, list: string[]) {
 		this.writeEmitter.fire(`${title}\r\n`);
+
 		for (const l of list) {
 			this.writeEmitter.fire(`  ${l}\r\n`);
 		}
@@ -272,11 +296,16 @@ export function categorizePaths(
 	scope: WorkspaceFolder | TaskScope.Global | TaskScope.Workspace,
 ): string[][] {
 	const includes = [];
+
 	const excludes = [];
+
 	const invalid = [];
+
 	for (const p of paths) {
 		let actualPath = p;
+
 		const isNegative: boolean = p.startsWith("!");
+
 		if (isNegative) {
 			actualPath = trimNegativeSign(actualPath);
 		}
@@ -294,6 +323,7 @@ export function categorizePaths(
 		}
 
 		let folder: WorkspaceFolder | undefined;
+
 		if (scope === TaskScope.Workspace) {
 			// cannot recover the absolute path
 			if (
@@ -311,6 +341,7 @@ export function categorizePaths(
 		}
 
 		const resolvedPath = path.join(folder.uri.fsPath, actualPath);
+
 		if (isNegative) {
 			excludes.push(resolvedPath);
 		} else {
@@ -322,6 +353,7 @@ export function categorizePaths(
 
 function trimNegativeSign(negativePath: string) {
 	let idx = 0;
+
 	for (; idx < negativePath.length; idx++) {
 		if (negativePath.charAt(idx) !== "!") {
 			break;
@@ -353,11 +385,14 @@ export function getFinalPaths(
 	});
 
 	const result: string[] = [];
+
 	const invalid: string[] = [];
+
 	for (const p of includes) {
 		const valid = projectPaths.some(
 			(projectPath) => path.relative(projectPath, p) === "",
 		);
+
 		if (valid) {
 			result.push(p);
 		} else {

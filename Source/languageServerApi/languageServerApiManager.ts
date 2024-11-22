@@ -26,12 +26,14 @@ class LanguageServerApiManager {
 
 		const serverMode: LanguageServerMode | undefined =
 			this.extensionApi?.serverMode;
+
 		if (!serverMode || serverMode === LanguageServerMode.LightWeight) {
 			return false;
 		}
 
 		await this.extensionApi.serverReady();
 		this.isServerReady = true;
+
 		return true;
 	}
 
@@ -43,21 +45,26 @@ class LanguageServerApiManager {
 		const extension: Extension<any> | undefined = extensions.getExtension(
 			ExtensionName.JAVA_LANGUAGE_SUPPORT,
 		);
+
 		if (extension) {
 			contextManager.setContextValue(
 				Context.LANGUAGE_SUPPORT_INSTALLED,
 				true,
 			);
 			await extension.activate();
+
 			const extensionApi: any = extension.exports;
+
 			if (!extensionApi) {
 				window.showErrorMessage(
 					"Please update 'redhat.java' to the latest version.",
 				);
+
 				return;
 			}
 
 			this.extensionApi = extensionApi;
+
 			if (extensionApi.onDidClasspathUpdate) {
 				const onDidClasspathUpdate: Event<Uri> =
 					extensionApi.onDidClasspathUpdate;

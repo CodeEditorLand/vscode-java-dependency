@@ -74,18 +74,26 @@ export class DiagnosticProvider implements vscode.Disposable {
 		tasksJsonPath: string,
 	): Promise<vscode.Diagnostic[]> {
 		const diagnostics: vscode.Diagnostic[] = [];
+
 		const fileStream = fs.createReadStream(tasksJsonPath);
+
 		let lineNumber = 0;
+
 		const rl = readline.createInterface({
 			input: fileStream,
 			crlfDelay: Infinity,
 		});
+
 		for await (const line of rl) {
 			const regExp: RegExp = /\"type\":\s*\"java\"/g;
+
 			const result: RegExpMatchArray | null = line.match(regExp);
+
 			if (result?.length === 1) {
 				const matchString = result[0];
+
 				const columnNumber = line.indexOf(matchString);
+
 				if (columnNumber > -1) {
 					const diagnostic = new vscode.Diagnostic(
 						new vscode.Range(
