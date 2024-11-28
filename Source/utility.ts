@@ -142,6 +142,7 @@ export function isKeyword(identifier: string): boolean {
 }
 
 const identifierRegExp: RegExp = /^([a-zA-Z_$][a-zA-Z\d_$]*)$/;
+
 export function isJavaIdentifier(identifier: string): boolean {
 	return identifierRegExp.test(identifier);
 }
