@@ -32,6 +32,7 @@ class LanguageServerApiManager {
 		}
 
 		await this.extensionApi.serverReady();
+
 		this.isServerReady = true;
 
 		return true;
@@ -51,6 +52,7 @@ class LanguageServerApiManager {
 				Context.LANGUAGE_SUPPORT_INSTALLED,
 				true,
 			);
+
 			await extension.activate();
 
 			const extensionApi: any = extension.exports;
@@ -68,12 +70,14 @@ class LanguageServerApiManager {
 			if (extensionApi.onDidClasspathUpdate) {
 				const onDidClasspathUpdate: Event<Uri> =
 					extensionApi.onDidClasspathUpdate;
+
 				contextManager.context.subscriptions.push(
 					onDidClasspathUpdate(() => {
 						commands.executeCommand(
 							Commands.VIEW_PACKAGE_INTERNAL_REFRESH,
 							/* debounce = */ true,
 						);
+
 						syncHandler.updateFileWatcher(Settings.autoRefresh());
 					}),
 				);
@@ -82,12 +86,14 @@ class LanguageServerApiManager {
 			if (extensionApi.onDidProjectsImport) {
 				const onDidProjectsImport: Event<Uri[]> =
 					extensionApi.onDidProjectsImport;
+
 				contextManager.context.subscriptions.push(
 					onDidProjectsImport(() => {
 						commands.executeCommand(
 							Commands.VIEW_PACKAGE_INTERNAL_REFRESH,
 							/* debounce = */ true,
 						);
+
 						syncHandler.updateFileWatcher(Settings.autoRefresh());
 					}),
 				);
@@ -96,12 +102,14 @@ class LanguageServerApiManager {
 			if (extensionApi.onDidProjectsDelete) {
 				const onDidProjectsDelete: Event<Uri[]> =
 					extensionApi.onDidProjectsDelete;
+
 				contextManager.context.subscriptions.push(
 					onDidProjectsDelete(() => {
 						commands.executeCommand(
 							Commands.VIEW_PACKAGE_INTERNAL_REFRESH,
 							/* debounce = */ true,
 						);
+
 						syncHandler.updateFileWatcher(Settings.autoRefresh());
 					}),
 				);
@@ -113,6 +121,7 @@ class LanguageServerApiManager {
 				if (extensionApi.onDidServerModeChange) {
 					const onDidServerModeChange: Event<string> =
 						extensionApi.onDidServerModeChange;
+
 					contextManager.context.subscriptions.push(
 						onDidServerModeChange((mode: LanguageServerMode) => {
 							if (mode === LanguageServerMode.Hybrid) {

@@ -12,9 +12,11 @@ export class Utility {
 		if (workspace.workspaceFolders === undefined) {
 			return undefined;
 		}
+
 		if (workspace.workspaceFolders.length === 1) {
 			return workspace.workspaceFolders[0];
 		}
+
 		if (window.activeTextEditor) {
 			const activeWorkspaceFolder: WorkspaceFolder | undefined =
 				workspace.getWorkspaceFolder(
@@ -23,6 +25,7 @@ export class Utility {
 
 			return activeWorkspaceFolder;
 		}
+
 		return undefined;
 	}
 
@@ -30,6 +33,7 @@ export class Utility {
 		if (!SUPPORTED_URI_SCHEMES.includes(uri.scheme)) {
 			return false;
 		}
+
 		if (uri.scheme === "file" && !workspace.getWorkspaceFolder(uri)) {
 			return false;
 		}
@@ -43,6 +47,7 @@ export class EventCounter {
 
 	public static increase(event: string) {
 		const count = this.dict[event] ?? 0;
+
 		this.dict[event] = count + 1;
 	}
 }
@@ -52,6 +57,7 @@ export class UserError extends Error {
 
 	constructor(context: ITroubleshootingMessage) {
 		super(context.message);
+
 		this.context = context;
 
 		setUserError(this);
@@ -64,7 +70,9 @@ interface IProperties {
 
 interface ILoggingMessage {
 	message: string;
+
 	type?: Type;
+
 	details?: IProperties;
 }
 

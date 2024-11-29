@@ -5,10 +5,12 @@ import { commands, Disposable, ExtensionContext } from "vscode";
 
 class ContextManager implements Disposable {
 	private _context: ExtensionContext;
+
 	private _contextValueMap: Map<string, any>;
 
 	public initialize(context: ExtensionContext) {
 		this._context = context;
+
 		this._contextValueMap = new Map<string, any>();
 	}
 
@@ -18,6 +20,7 @@ class ContextManager implements Disposable {
 
 	public async setContextValue(key: string, value: any): Promise<void> {
 		this._contextValueMap.set(key, value);
+
 		await commands.executeCommand("setContext", key, value);
 	}
 

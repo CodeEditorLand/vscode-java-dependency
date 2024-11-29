@@ -42,26 +42,31 @@ export class JavaType {
 		"class",
 		"$(symbol-class)",
 	);
+
 	public static readonly INTERFACE: JavaType = new JavaType(
 		"Interface",
 		"interface",
 		"$(symbol-interface)",
 	);
+
 	public static readonly ENUM: JavaType = new JavaType(
 		"Enum",
 		"enum",
 		"$(symbol-enum)",
 	);
+
 	public static readonly RECORD: JavaType = new JavaType(
 		"Record",
 		"record",
 		"$(symbol-class)",
 	);
+
 	public static readonly ANNOTATION: JavaType = new JavaType(
 		"Annotation",
 		"@interface",
 		"$(symbol-interface)",
 	);
+
 	public static readonly ABSTRACT_CLASS: JavaType = new JavaType(
 		"Abstract Class",
 		"abstract class",
@@ -123,6 +128,7 @@ export async function newResource(node: DataNode): Promise<void> {
 		const allowRecord = node
 			.computeContextValue()
 			?.includes("+allowRecord");
+
 		availableTypes.push(
 			...JavaType.getDisplayNames(true, allowRecord).map((label) => {
 				return {
@@ -130,6 +136,7 @@ export async function newResource(node: DataNode): Promise<void> {
 				};
 			}),
 		);
+
 		availableTypes.push({
 			label: "$(symbol-namespace) Package",
 		});
@@ -184,6 +191,7 @@ export async function newResource(node: DataNode): Promise<void> {
 			if (javaType) {
 				await newJavaFileWithSpecificType(javaType, node);
 			}
+
 			break;
 	}
 }
@@ -248,8 +256,10 @@ export async function newJavaFileWithSpecificType(
 		if (!node?.uri || !canCreateClass(node)) {
 			return;
 		}
+
 		packageFsPath = await getPackageFsPath(node);
 	}
+
 	if (packageFsPath === undefined) {
 		// User canceled
 		return;
@@ -293,6 +303,7 @@ async function newJavaFile0(
 	const fsPath: string = getNewFilePath(packageFsPath, className);
 
 	const packageName = await resolvePackageName(fsPath);
+
 	await newJavaFileWithContents(fsPath, javaType, packageName);
 }
 
@@ -351,6 +362,7 @@ async function newJavaFileWithContents(
 	if (!isModuleInfo) {
 		if (context.packageName) {
 			snippets.push(`package ${context.packageName};`);
+
 			snippets.push("");
 		}
 	}
@@ -373,16 +385,22 @@ async function newJavaFileWithContents(
 				`public ${javaType.keyword} ${typeName}${javaType === JavaType.RECORD ? "()" : ""} {`,
 			);
 		}
+
 		snippets.push("");
+
 		snippets.push("}");
+
 		snippets.push("");
 	}
 
 	const workspaceEdit: WorkspaceEdit = new WorkspaceEdit();
 
 	const fsUri: Uri = Uri.file(fsPath);
+
 	workspaceEdit.createFile(fsUri);
+
 	workspaceEdit.insert(fsUri, new Position(0, 0), snippets.join("\n"));
+
 	await workspace.applyEdit(workspaceEdit);
 
 	const editor = await window.showTextDocument(fsUri);
@@ -408,15 +426,21 @@ async function newUntitledJavaFile(): Promise<void> {
 	if (!textEditor) {
 		return;
 	}
+
 	await languages.setTextDocumentLanguage(textEditor.document, "java");
 
 	const snippets: string[] = [];
+
 	snippets.push(
 		`public \${1|class,interface,enum,abstract class,@interface|} \${2:Main} {`,
 	);
+
 	snippets.push(`\t\${0}`);
+
 	snippets.push("}");
+
 	snippets.push("");
+
 	textEditor.insertSnippet(new SnippetString(snippets.join("\n")));
 }
 
@@ -457,6 +481,7 @@ async function inferPackageFsPath(): Promise<string> {
 		if (sourcePaths?.length === 1) {
 			return sourcePaths[0];
 		}
+
 		return "";
 	}
 
@@ -646,6 +671,7 @@ async function getPackageFsPath(node: DataNode): Promise<string | undefined> {
 					packageNode.name,
 				);
 			}
+
 			return "";
 		} else if (packageRoots.length === 1) {
 			return Uri.parse(packageRoots[0].uri).fsPath;
@@ -676,6 +702,7 @@ function getNewFilePath(basePath: string, className: string): string {
 	if (className.endsWith(".java")) {
 		className = className.substr(0, className.length - ".java".length);
 	}
+
 	return path.join(basePath, ...className.split(".")) + ".java";
 }
 
@@ -808,6 +835,7 @@ async function getPackageInformationFromNode(
 
 			return undefined;
 		}
+
 		const packagePath = await getPackageFsPath(node);
 
 		if (!packagePath) {
@@ -815,6 +843,7 @@ async function getPackageInformationFromNode(
 
 			return undefined;
 		}
+
 		return {
 			packageRootPath,
 			defaultValue: path
@@ -856,14 +885,19 @@ interface ISourceRootPickItem extends QuickPickItem {
 
 interface IListCommandResult {
 	status: boolean;
+
 	message: string;
+
 	data?: ISourcePath[];
 }
 
 interface ISourcePath {
 	path: string;
+
 	displayPath: string;
+
 	projectName: string;
+
 	projectType: string;
 }
 
@@ -892,6 +926,7 @@ export async function newFile(node: DataNode): Promise<void> {
 	const relativePath = fileName.replace(/[/\\]+/g, path.sep);
 
 	const newFilePath = path.join(basePath, relativePath);
+
 	await createFile(newFilePath);
 }
 
@@ -899,6 +934,7 @@ async function createFile(newFilePath: string) {
 	fse.createFile(newFilePath, async (err: Error) => {
 		if (err) {
 			setUserError(err);
+
 			sendError(err);
 
 			const choice = await window.showErrorMessage(
@@ -941,6 +977,7 @@ export async function newFolder(node: DataNode): Promise<void> {
 	const relativePath = folderName.replace(/[/\\]+/g, path.sep);
 
 	const newFolderPath = path.join(basePath, relativePath);
+
 	fse.mkdirs(newFolderPath);
 }
 
@@ -999,5 +1036,6 @@ async function getSourceRoots(): Promise<IListCommandResult | undefined> {
 	} catch (e) {
 		// ignore;
 	}
+
 	return undefined;
 }

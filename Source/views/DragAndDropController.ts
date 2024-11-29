@@ -36,6 +36,7 @@ export class DragAndDropController
 		Explorer.Mime.JavaProjectExplorer,
 		Explorer.Mime.TextUriList,
 	];
+
 	dragMimeTypes: string[] = [Explorer.Mime.TextUriList];
 
 	public handleDrag(
@@ -44,8 +45,11 @@ export class DragAndDropController
 	): void {
 		// select many is not supported yet
 		const dragItem = source[0];
+
 		this.addDragToEditorDataTransfer(dragItem, treeDataTransfer);
+
 		this.addInternalDragDataTransfer(dragItem, treeDataTransfer);
+
 		sendInfo("", {
 			dndType: "drag",
 			dragFrom: dragItem.computeContextValue() || "unknown",
@@ -87,6 +91,7 @@ export class DragAndDropController
 					if (uri.fragment) {
 						return undefined;
 					}
+
 					return u;
 				} catch (e) {
 					sendError(e);
@@ -129,6 +134,7 @@ export class DragAndDropController
 				const fragment = `#L${range.start.line + 1},${range.start.character + 1}`;
 
 				const uri = parent.uri + fragment;
+
 				treeDataTransfer.set(
 					Explorer.Mime.TextUriList,
 					new DataTransferItem(uri),
@@ -215,6 +221,7 @@ export class DragAndDropController
 			}
 
 			this.addReferencedLibraries([source?.uri!]);
+
 			sendInfo("", {
 				dndType: "drop",
 				dragFrom: source?.computeContextValue() || "unknown",
@@ -228,6 +235,7 @@ export class DragAndDropController
 			target instanceof FolderNode
 		) {
 			await this.move(Uri.parse(source!.uri!), Uri.parse(target.uri!));
+
 			sendInfo("", {
 				dndType: "drop",
 				dragFrom: source?.computeContextValue() || "unknown",
@@ -276,6 +284,7 @@ export class DragAndDropController
 			}
 
 			this.addReferencedLibraries(uris);
+
 			sendInfo("", {
 				dndType: "drop",
 				dragFrom: "File Explorer",
@@ -291,6 +300,7 @@ export class DragAndDropController
 			for (const uri of uris) {
 				await this.copy(Uri.parse(uri), Uri.parse(target.uri!));
 			}
+
 			sendInfo("", {
 				dndType: "drop",
 				dragFrom: "File Explorer",
@@ -309,6 +319,7 @@ export class DragAndDropController
 		if (!node?.uri) {
 			return false;
 		}
+
 		if (
 			node instanceof WorkspaceNode ||
 			node instanceof ProjectNode ||
@@ -340,8 +351,10 @@ export class DragAndDropController
 			if (parent instanceof PackageRootNode) {
 				return parent.isSourceRoot();
 			}
+
 			parent = parent.getParent();
 		}
+
 		return true;
 	}
 
@@ -388,10 +401,13 @@ export class DragAndDropController
 						parent.getParent() as ProjectNode
 					).isUnmanagedFolder();
 				}
+
 				return false;
 			}
+
 			parent = parent.getParent();
 		}
+
 		return false;
 	}
 
@@ -437,7 +453,9 @@ export class DragAndDropController
 
 		if (choice === "Move" && (await this.confirmOverwrite(newPath))) {
 			const edit = new WorkspaceEdit();
+
 			edit.renameFile(sourceUri, Uri.file(newPath), { overwrite: true });
+
 			await workspace.applyEdit(edit);
 		}
 	}
@@ -500,6 +518,7 @@ export class DragAndDropController
 						if (uri.scheme !== "file") {
 							return undefined;
 						}
+
 						const isDirectory = (
 							await fse.stat(uri.fsPath)
 						).isDirectory();
@@ -510,6 +529,7 @@ export class DragAndDropController
 						) {
 							return undefined;
 						}
+
 						const uriPath = workspace.asRelativePath(uri, false);
 
 						return isDirectory ? uriPath + "/**/*.jar" : uriPath;

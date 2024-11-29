@@ -13,12 +13,15 @@ export async function updateExportTaskType(
 	range: Range,
 ): Promise<void> {
 	const workspaceEdit = new WorkspaceEdit();
+
 	workspaceEdit.replace(
 		document.uri,
 		range,
 		CodeActionProvider.JAVA_BUILD_ARTIFACT_TYPE,
 	);
+
 	await workspace.applyEdit(workspaceEdit);
+
 	await document.save();
 }
 
@@ -32,5 +35,6 @@ export async function setContextForDeprecatedTasks(): Promise<void> {
 	if (deprecatedTasks?.length) {
 		return;
 	}
+
 	await contextManager.setContextValue(Context.SHOW_DEPRECATED_TASKS, false);
 }

@@ -46,6 +46,7 @@ export class FolderNode extends DataNode {
 				);
 			});
 		}
+
 		return result.filter(<T>(n?: T): n is T => Boolean(n));
 	}
 

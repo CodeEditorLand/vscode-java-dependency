@@ -49,9 +49,13 @@ import { DependencyExplorer } from "./views/dependencyExplorer";
 
 export async function activate(context: ExtensionContext): Promise<void> {
 	contextManager.initialize(context);
+
 	await initializeFromJsonFile(context.asAbsolutePath("./package.json"));
+
 	await initExpService(context);
+
 	await instrumentOperation("activation", activateExtension)(context);
+
 	addExtensionChangeListener(context);
 	// the when clause does not support 'workspaceContains' we used for activation event,
 	// so we manually find the target files and set it to a context value.
@@ -65,6 +69,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 				);
 			}
 		});
+
 	contextManager.setContextValue(Context.EXTENSION_ACTIVATED, true);
 }
 
@@ -73,45 +78,57 @@ async function activateExtension(
 	context: ExtensionContext,
 ): Promise<void> {
 	context.subscriptions.push(new ProjectController(context));
+
 	Settings.initialize(context);
+
 	context.subscriptions.push(new LibraryController(context));
+
 	context.subscriptions.push(DependencyExplorer.getInstance(context));
+
 	context.subscriptions.push(contextManager);
+
 	context.subscriptions.push(syncHandler);
+
 	context.subscriptions.push(
 		tasks.registerTaskProvider(
 			DeprecatedExportJarTaskProvider.type,
 			new DeprecatedExportJarTaskProvider(),
 		),
 	);
+
 	context.subscriptions.push(
 		tasks.registerTaskProvider(
 			BuildArtifactTaskProvider.exportJarType,
 			new BuildArtifactTaskProvider(),
 		),
 	);
+
 	context.subscriptions.push(
 		tasks.registerTaskProvider(
 			BuildTaskProvider.type,
 			new BuildTaskProvider(),
 		),
 	);
+
 	context.subscriptions.push(
 		instrumentOperationAsVsCodeCommand(
 			Commands.VIEW_MENUS_FILE_NEW_JAVA_CLASS,
 			newJavaFile,
 		),
 	);
+
 	context.subscriptions.push(
 		window.onDidChangeActiveTextEditor((e: TextEditor | undefined) => {
 			setContextForReloadProject(e?.document);
 		}),
 	);
+
 	context.subscriptions.push(
 		languages.onDidChangeDiagnostics(() => {
 			setContextForReloadProject(window.activeTextEditor?.document);
 		}),
 	);
+
 	instrumentOperationAsVsCodeCommand(
 		Commands.JAVA_PROJECT_RELOAD_ACTIVE_FILE,
 		(uri?: Uri) => {
@@ -121,6 +138,7 @@ async function activateExtension(
 				if (!activeDocument) {
 					return;
 				}
+
 				uri = activeDocument.uri;
 			}
 
@@ -136,6 +154,7 @@ async function activateExtension(
 	);
 	// handle deprecated tasks
 	context.subscriptions.push(new DiagnosticProvider());
+
 	context.subscriptions.push(
 		languages.registerCodeActionsProvider(
 			[
@@ -147,6 +166,7 @@ async function activateExtension(
 			new CodeActionProvider(),
 		),
 	);
+
 	context.subscriptions.push(
 		instrumentOperationAsVsCodeCommand(
 			Commands.JAVA_UPDATE_DEPRECATED_TASK,
@@ -162,6 +182,7 @@ async function activateExtension(
 // this method is called when your extension is deactivated
 export async function deactivate(): Promise<void> {
 	sendInfo("", EventCounter.dict);
+
 	await disposeTelemetryWrapper();
 }
 
@@ -178,9 +199,11 @@ function addExtensionChangeListener(context: ExtensionContext): void {
 					Commands.VIEW_PACKAGE_INTERNAL_REFRESH,
 					/* debounce = */ false,
 				);
+
 				extensionChangeListener.dispose();
 			}
 		});
+
 		context.subscriptions.push(extensionChangeListener);
 	}
 }
@@ -205,5 +228,6 @@ function setContextForReloadProject(document: TextDocument | undefined): void {
 			return;
 		}
 	}
+
 	contextManager.setContextValue(Context.RELOAD_PROJECT_ACTIVE, false);
 }

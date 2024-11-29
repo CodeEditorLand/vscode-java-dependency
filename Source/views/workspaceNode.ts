@@ -19,6 +19,7 @@ export class WorkspaceNode extends DataNode {
 		if (!this.nodeData.uri) {
 			return undefined;
 		}
+
 		return Jdtls.getProjects(this.nodeData.uri);
 	}
 
@@ -30,6 +31,7 @@ export class WorkspaceNode extends DataNode {
 				result.push(NodeFactory.createNode(nodeData, this));
 			});
 		}
+
 		return result.filter(<T>(n?: T): n is T => Boolean(n));
 	}
 

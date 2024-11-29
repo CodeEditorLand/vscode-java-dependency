@@ -25,9 +25,13 @@ export abstract class DataNode extends ExplorerNode {
 				? TreeItemCollapsibleState.Collapsed
 				: TreeItemCollapsibleState.None,
 		);
+
 		item.description = this.description;
+
 		item.iconPath = this.iconPath;
+
 		item.command = this.command;
+
 		item.contextValue = this.computeContextValue();
 
 		if (this.uri) {
@@ -79,6 +83,7 @@ export abstract class DataNode extends ExplorerNode {
 		if (_.isEmpty(paths)) {
 			return this;
 		}
+
 		const childNodeData = paths.shift();
 
 		const children: ExplorerNode[] = await this.getChildren();
@@ -102,12 +107,16 @@ export abstract class DataNode extends ExplorerNode {
 
 			if (!this._nodeData.children) {
 				const data = await this.loadData();
+
 				this._nodeData.children = data;
+
 				this._childrenNodes = this.createChildNodeList() || [];
+
 				this.sort();
 
 				return this._childrenNodes;
 			}
+
 			return this._childrenNodes;
 		} finally {
 			explorerLock.release();
@@ -120,9 +129,11 @@ export abstract class DataNode extends ExplorerNode {
 		if (this.uri && this.uri.startsWith("file:")) {
 			contextValue = `${contextValue || ""}+uri`;
 		}
+
 		if (contextValue) {
 			contextValue = `java:${contextValue}`;
 		}
+
 		return contextValue;
 	}
 
@@ -135,6 +146,7 @@ export abstract class DataNode extends ExplorerNode {
 					return a.nodeData.kind - b.nodeData.kind;
 				}
 			}
+
 			return 0;
 		});
 	}

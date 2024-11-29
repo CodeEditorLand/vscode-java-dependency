@@ -14,9 +14,13 @@ import {
 
 export class DiagnosticProvider implements vscode.Disposable {
 	public static DIAGNOSTIC_SOURCE = "Project Manager for Java";
+
 	public static DEPRECATED_TASK_TYPE_MESSAGE = `The type \"${DeprecatedExportJarTaskProvider.type}\" is deprecated, please use \"${BuildArtifactTaskProvider.exportJarType}\" instead.`;
+
 	private diagnosticCollection: vscode.DiagnosticCollection;
+
 	private disposables: vscode.Disposable[] = [];
+
 	private refreshDiagnosticsTrigger: any;
 
 	constructor() {
@@ -24,9 +28,12 @@ export class DiagnosticProvider implements vscode.Disposable {
 			this.refreshDiagnostics,
 			500 /** ms */,
 		);
+
 		this.diagnosticCollection =
 			vscode.languages.createDiagnosticCollection("migrateExportTask");
+
 		this.disposables.push(this.diagnosticCollection);
+
 		this.disposables.push(
 			vscode.workspace.onDidChangeTextDocument(
 				async (e: vscode.TextDocumentChangeEvent) => {
@@ -36,6 +43,7 @@ export class DiagnosticProvider implements vscode.Disposable {
 				},
 			),
 		);
+
 		this.disposables.push(
 			vscode.workspace.onDidOpenTextDocument(
 				async (e: vscode.TextDocument) => {
@@ -45,6 +53,7 @@ export class DiagnosticProvider implements vscode.Disposable {
 				},
 			),
 		);
+
 		this.disposables.push(
 			vscode.workspace.onDidCloseTextDocument(
 				async (e: vscode.TextDocument) => {
@@ -67,6 +76,7 @@ export class DiagnosticProvider implements vscode.Disposable {
 			await DiagnosticProvider.getDiagnosticsFromTasksJsonPath(
 				uri.fsPath,
 			);
+
 		this.diagnosticCollection.set(uri, diagnostics);
 	}
 
@@ -106,12 +116,16 @@ export class DiagnosticProvider implements vscode.Disposable {
 						DiagnosticProvider.DEPRECATED_TASK_TYPE_MESSAGE,
 						vscode.DiagnosticSeverity.Warning,
 					);
+
 					diagnostic.source = DiagnosticProvider.DIAGNOSTIC_SOURCE;
+
 					diagnostics.push(diagnostic);
 				}
 			}
+
 			lineNumber++;
 		}
+
 		return diagnostics;
 	}
 }

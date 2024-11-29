@@ -50,6 +50,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 				return false;
 			}
 		}
+
 		const folder: WorkspaceFolder | undefined =
 			stepMetadata.workspaceFolder;
 
@@ -61,6 +62,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 				),
 			);
 		}
+
 		let destPath = "";
 
 		if (stepMetadata.outputPath === "") {
@@ -76,6 +78,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 			if (!outputUri) {
 				return Promise.reject();
 			}
+
 			destPath = outputUri.fsPath;
 		} else {
 			const outputPath: string | undefined = stepMetadata.outputPath;
@@ -97,8 +100,10 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 			if (extname(outputPath) !== ".jar") {
 				destPath = join(destPath, folder.name + ".jar");
 			}
+
 			await ensureDir(dirname(destPath));
 		}
+
 		destPath = normalize(destPath);
 
 		return window.withProgress(
@@ -127,6 +132,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 							),
 						);
 					}
+
 					const classpaths: IClasspath[] = stepMetadata.classpaths;
 
 					if (_.isEmpty(classpaths)) {
@@ -134,11 +140,13 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 							new Error(ExportJarMessages.CLASSPATHS_EMPTY),
 						);
 					}
+
 					if (!stepMetadata.terminalId) {
 						return reject(
 							new Error("Can't find related terminal."),
 						);
 					}
+
 					const exportResult: boolean | undefined =
 						await Jdtls.exportJar(
 							basename(mainClass),
@@ -190,6 +198,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 								new Error(ExportJarMessages.WORKSPACE_EMPTY),
 							);
 						}
+
 						const workspaceFolder: WorkspaceFolder | undefined =
 							stepMetadata.workspaceFolder;
 
@@ -203,6 +212,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 								),
 							);
 						}
+
 						for (const project of projectList) {
 							const projectUri: string =
 								project.metaData?.UnmanagedFolderInnerPath ||
@@ -217,6 +227,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 									projectUri,
 									{ scope: "runtime" },
 								);
+
 								testClasspaths =
 									await extensionApi.getClasspaths(
 										projectUri,
@@ -225,6 +236,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 							} catch (e) {
 								return reject(new Error(e));
 							}
+
 							pickItems.push(
 								...(await this.parseDependencyItems(
 									classpaths.classpaths,
@@ -239,6 +251,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 									"runtime",
 								)),
 							);
+
 							pickItems.push(
 								...(await this.parseDependencyItems(
 									testClasspaths.classpaths,
@@ -254,6 +267,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 								)),
 							);
 						}
+
 						return resolve(pickItems);
 					},
 				);
@@ -270,15 +284,18 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 
 			return true;
 		}
+
 		dependencyItems.sort((node1, node2) => {
 			if (node1.description !== node2.description) {
 				return (node1.description || "").localeCompare(
 					node2.description || "",
 				);
 			}
+
 			if (node1.type !== node2.type) {
 				return node2.type.localeCompare(node1.type);
 			}
+
 			return node1.label.localeCompare(node2.label);
 		});
 
@@ -289,6 +306,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 				pickedDependencyItems.push(item);
 			}
 		}
+
 		const disposables: Disposable[] = [];
 
 		let result: boolean = false;
@@ -302,7 +320,9 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 					stepMetadata.steps.length > 0,
 					true,
 				);
+
 				pickBox.selectedItems = pickedDependencyItems;
+
 				disposables.push(
 					pickBox.onDidTriggerButton((item) => {
 						if (item === QuickInputButtons.Back) {
@@ -313,6 +333,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 						if (_.isEmpty(pickBox.selectedItems)) {
 							return;
 						}
+
 						for (const item of pickBox.selectedItems) {
 							if (item.type === "artifact") {
 								const classpath: IClasspath = {
@@ -320,6 +341,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 									destination: undefined,
 									isArtifact: true,
 								};
+
 								stepMetadata.classpaths.push(classpath);
 							} else {
 								await this.setStepMetadataFromOutputFolder(
@@ -328,13 +350,16 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 								);
 							}
 						}
+
 						return resolve(true);
 					}),
 					pickBox.onDidHide(() => {
 						return reject();
 					}),
 				);
+
 				disposables.push(pickBox);
+
 				pickBox.show();
 			});
 		} finally {
@@ -342,6 +367,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 				d.dispose();
 			}
 		}
+
 		return result;
 	}
 
@@ -374,6 +400,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 			if ((await pathExists(classpath)) === false) {
 				continue;
 			}
+
 			const extName = extname(classpath);
 
 			const baseName = Uri.parse(classpath).fsPath.startsWith(
@@ -386,6 +413,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 
 			if (!uriSet.has(classpath)) {
 				uriSet.add(classpath);
+
 				dependencyItems.push({
 					label: baseName,
 					description: scope,
@@ -395,6 +423,7 @@ export class GenerateJarExecutor implements IExportJarStepExecutor {
 				});
 			}
 		}
+
 		return dependencyItems;
 	}
 }
@@ -403,10 +432,12 @@ export interface IClasspathResult {
 	projectRoot: string;
 
 	classpaths: string[];
+
 	modulepaths: string[];
 }
 
 interface IJarQuickPickItem extends QuickPickItem {
 	path: string;
+
 	type: string;
 }

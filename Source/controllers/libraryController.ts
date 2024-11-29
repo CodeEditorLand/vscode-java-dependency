@@ -73,6 +73,7 @@ export class LibraryController implements Disposable {
 		if (!results) {
 			return;
 		}
+
 		addLibraryGlobs(
 			await Promise.all(
 				results.map(async (uri: Uri) => {
@@ -110,6 +111,7 @@ export class LibraryController implements Disposable {
 				workspace.asRelativePath(removalFsPath, false),
 			);
 		}
+
 		Settings.updateReferencedLibraries(setting);
 	}
 
@@ -131,6 +133,7 @@ export function addLibraryGlobs(libraryGlobs: string[]) {
 	);
 
 	setting.include = updatePatternArray(setting.include, ...libraryGlobs);
+
 	Settings.updateReferencedLibraries(setting);
 }
 
@@ -150,6 +153,7 @@ function dedupAlreadyCoveredPattern(
 
 function updatePatternArray(origin: string[], ...update: string[]): string[] {
 	update = dedupAlreadyCoveredPattern(origin, ...update);
+
 	origin.push(...update);
 
 	return _.uniq(origin);

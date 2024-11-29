@@ -88,6 +88,7 @@ export class ProjectController implements Disposable {
 				Commands.WORKBENCH_ACTION_FILES_OPENFOLDER,
 			);
 		}
+
 		return commands.executeCommand(
 			Commands.WORKBENCH_ACTION_FILES_OPENFILEFOLDER,
 		);
@@ -118,6 +119,7 @@ export class ProjectController implements Disposable {
 		) {
 			return;
 		}
+
 		sendInfo("", {
 			projectCreationType: choice.metadata.type,
 			triggerfrom: triggerFrom,
@@ -141,17 +143,25 @@ export class ProjectController implements Disposable {
 
 interface IProjectType {
 	displayName: string;
+
 	description?: string;
+
 	detail?: string;
+
 	metadata: IProjectTypeMetadata;
 }
 
 interface IProjectTypeMetadata {
 	type: ProjectType;
+
 	extensionId: string;
+
 	extensionName: string;
+
 	leastExtensionVersion?: string;
+
 	createCommandId: string;
+
 	createCommandArgs?: any[];
 }
 
@@ -260,9 +270,11 @@ async function scaffoldSimpleProject(context: ExtensionContext): Promise<void> {
 			if (name && !name.match(/^[^*~/\\]+$/)) {
 				return "Please input a valid project name";
 			}
+
 			if (name && (await fse.pathExists(path.join(basePath, name)))) {
 				return "A project with this name already exists";
 			}
+
 			return "";
 		},
 	});
@@ -281,14 +293,18 @@ async function scaffoldSimpleProject(context: ExtensionContext): Promise<void> {
 
 	try {
 		await fse.ensureDir(projectRoot);
+
 		await fse.copy(templateRoot, projectRoot);
+
 		await fse.ensureDir(path.join(projectRoot, "lib"));
 	} catch (error) {
 		window.showErrorMessage(error.message);
 
 		return;
 	}
+
 	const openInNewWindow = workspace && !_.isEmpty(workspace.workspaceFolders);
+
 	await commands.executeCommand(
 		Commands.VSCODE_OPEN_FOLDER,
 		Uri.file(path.join(basePath, projectName)),

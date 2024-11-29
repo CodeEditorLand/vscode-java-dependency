@@ -27,6 +27,7 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 		if (stepMetadata.mainClass !== undefined) {
 			return true;
 		}
+
 		return this.resolveMainClass(stepMetadata);
 	}
 
@@ -58,6 +59,7 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 									),
 								);
 							}
+
 							resolve(
 								await Jdtls.getMainClasses(
 									stepMetadata.workspaceFolder.uri.toString(),
@@ -73,6 +75,7 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 
 			return true;
 		}
+
 		const pickItems: QuickPickItem[] = [];
 
 		for (const mainClass of mainClasses) {
@@ -81,10 +84,12 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 				description: mainClass.name,
 			});
 		}
+
 		const noMainClassItem: QuickPickItem = {
 			label: "<without main class>",
 			description: "",
 		};
+
 		pickItems.push(noMainClassItem);
 
 		const disposables: Disposable[] = [];
@@ -99,6 +104,7 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 					pickItems,
 					stepMetadata.steps.length > 0,
 				);
+
 				disposables.push(
 					pickBox.onDidTriggerButton((item) => {
 						if (item === QuickInputButtons.Back) {
@@ -109,8 +115,10 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 						if (_.isEmpty(pickBox.selectedItems)) {
 							return;
 						}
+
 						stepMetadata.mainClass =
 							pickBox.selectedItems[0].description;
+
 						stepMetadata.steps.push(ExportJarStep.ResolveMainClass);
 
 						return resolve(true);
@@ -119,7 +127,9 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 						return reject();
 					}),
 				);
+
 				disposables.push(pickBox);
+
 				pickBox.show();
 			});
 		} finally {
@@ -127,11 +137,13 @@ export class ResolveMainClassExecutor implements IExportJarStepExecutor {
 				d.dispose();
 			}
 		}
+
 		return result;
 	}
 }
 
 export interface IMainClassInfo {
 	name: string;
+
 	path: string;
 }

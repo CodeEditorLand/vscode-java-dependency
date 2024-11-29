@@ -25,6 +25,7 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 		if (stepMetadata.workspaceFolder === undefined) {
 			await this.resolveJavaProject(stepMetadata);
 		}
+
 		return true;
 	}
 
@@ -43,6 +44,7 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 					),
 				);
 			}
+
 			const workspaceUri: Uri = Uri.parse(stepMetadata.entry.uri);
 
 			for (const folder of folders) {
@@ -50,20 +52,24 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 					stepMetadata.workspaceFolder = folder;
 				}
 			}
+
 			stepMetadata.projectList = await Jdtls.getProjects(
 				workspaceUri.toString(),
 			);
 
 			return;
 		}
+
 		if (folders.length === 1) {
 			stepMetadata.workspaceFolder = folders[0];
+
 			stepMetadata.projectList = await Jdtls.getProjects(
 				folders[0].uri.toString(),
 			);
 
 			return;
 		}
+
 		const pickItems: IJavaProjectQuickPickItem[] = [];
 
 		const projectMap: Map<string, INodeData[]> = new Map<
@@ -82,12 +88,15 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 					description: folder.uri.fsPath,
 					workspaceFolder: folder,
 				});
+
 				projectMap.set(folder.uri.toString(), projects);
 			}
 		}
+
 		if (_.isEmpty(pickItems)) {
 			throw new Error(ExportJarMessages.JAVAWORKSPACES_EMPTY);
 		}
+
 		const disposables: Disposable[] = [];
 
 		try {
@@ -98,11 +107,13 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 					pickItems,
 					false,
 				);
+
 				disposables.push(
 					pickBox.onDidAccept(() => {
 						if (_.isEmpty(pickBox.selectedItems)) {
 							return;
 						}
+
 						const projectList: INodeData[] =
 							projectMap.get(
 								pickBox.selectedItems[0].workspaceFolder.uri.toString(),
@@ -113,9 +124,12 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 								new Error(ExportJarMessages.WORKSPACE_EMPTY),
 							);
 						}
+
 						stepMetadata.projectList = projectList;
+
 						stepMetadata.workspaceFolder =
 							pickBox.selectedItems[0].workspaceFolder;
+
 						stepMetadata.steps.push(
 							ExportJarStep.ResolveJavaProject,
 						);
@@ -126,7 +140,9 @@ export class ResolveJavaProjectExecutor implements IExportJarStepExecutor {
 						return reject();
 					}),
 				);
+
 				disposables.push(pickBox);
+
 				pickBox.show();
 			});
 		} finally {

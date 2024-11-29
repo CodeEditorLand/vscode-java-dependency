@@ -59,6 +59,7 @@ export class PackageNode extends DataNode {
 				);
 			});
 		}
+
 		return result.filter(<T>(n?: T): n is T => Boolean(n));
 	}
 
@@ -83,9 +84,11 @@ export class PackageNode extends DataNode {
 		} else if (parentData.entryKind === PackageRootKind.K_BINARY) {
 			contextValue += "+binary";
 		}
+
 		if (isTest(parentData)) {
 			contextValue += "+test";
 		}
+
 		return contextValue;
 	}
 }

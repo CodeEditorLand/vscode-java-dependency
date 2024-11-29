@@ -66,6 +66,7 @@ export class NodeFactory {
 							project,
 						);
 					}
+
 					return new PackageRootNode(nodeData, parent, project);
 
 				case NodeKind.Package:
@@ -83,6 +84,7 @@ export class NodeFactory {
 							rootNode,
 						);
 					}
+
 					return new PackageNode(nodeData, parent, project, rootNode);
 
 				case NodeKind.PrimaryType:
@@ -98,6 +100,7 @@ export class NodeFactory {
 
 						return new PrimaryTypeNode(nodeData, parent, rootNode);
 					}
+
 					return undefined;
 
 				case NodeKind.Folder:

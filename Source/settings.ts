@@ -139,6 +139,7 @@ export class Settings {
 		if (!updateSetting.exclude && !updateSetting.sources) {
 			updateSetting = libraries.include;
 		}
+
 		workspace
 			.getConfiguration("java.project")
 			.update("referencedLibraries", updateSetting);
@@ -223,6 +224,8 @@ enum PackagePresentation {
 
 export interface IReferencedLibraries {
 	include: string[];
+
 	exclude: string[];
+
 	sources: { [binary: string]: string };
 }

@@ -41,6 +41,7 @@ export class ProjectNode extends DataNode {
 					childNodeData.name === child.nodeData.name
 				);
 			}
+
 			return (
 				child.nodeData.name === childNodeData.name &&
 				child.path === childNodeData.path
@@ -51,6 +52,7 @@ export class ProjectNode extends DataNode {
 		if (!(childNode instanceof HierarchicalPackageNode)) {
 			paths.shift();
 		}
+
 		return childNode && paths.length > 0
 			? childNode.revealPaths(paths)
 			: childNode;
@@ -64,6 +66,7 @@ export class ProjectNode extends DataNode {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -127,11 +130,14 @@ export class ProjectNode extends DataNode {
 
 		if (natureIds) {
 			const attributeString: string = getProjectTypeAttributes(natureIds);
+
 			contextValue += attributeString;
 		}
+
 		if (this.nodeData.metaData?.MaxSourceVersion >= 16) {
 			contextValue += "+allowRecord";
 		}
+
 		return contextValue;
 	}
 }
@@ -146,6 +152,7 @@ function getProjectTypeAttributes(natureIds: string[]): string {
 			attributeString += `+${readableNature}`;
 		}
 	}
+
 	return attributeString;
 }
 

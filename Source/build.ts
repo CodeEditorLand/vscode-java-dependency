@@ -46,6 +46,7 @@ export async function buildWorkspace(): Promise<boolean> {
 	if (buildResult.error) {
 		return handleBuildFailure(buildResult.operationId, buildResult.error);
 	}
+
 	return true;
 }
 
@@ -58,6 +59,7 @@ async function handleBuildFailure(
 	});
 
 	setErrorCode(error, Number(err));
+
 	sendOperationError(operationId, "build", error);
 	// Workaround: Since VS Code 1.53, the contributed command would no longer throw exact error message when an error occurs.
 	// This change breaks the existing build error reporting, so we make a workaround here.
@@ -77,6 +79,7 @@ async function handleBuildFailure(
 			"Fix...",
 			"Cancel",
 		);
+
 		sendInfo(operationId, {
 			operationName: "build",
 			choiceForBuildError: ans || "esc",
@@ -87,8 +90,10 @@ async function handleBuildFailure(
 		} else if (ans === "Fix...") {
 			showFixSuggestions(operationId);
 		}
+
 		return false;
 	}
+
 	return false;
 }
 
@@ -113,6 +118,7 @@ export function checkErrorsReportedByJavaExtension(): boolean {
 			}
 		}
 	}
+
 	return false;
 }
 
@@ -126,6 +132,7 @@ async function showFixSuggestions(operationId: string) {
 	}
 
 	const pickitems: QuickPickItem[] = [];
+
 	pickitems.push({
 		label: "Clean workspace cache",
 		detail: "Clean the stale workspace and reload the window",
@@ -137,6 +144,7 @@ async function showFixSuggestions(operationId: string) {
 			detail: "Force the language server to update the project configuration/classpath",
 		});
 	}
+
 	pickitems.push({
 		label: "Open log file",
 		detail: "Open log file to view more details for the build errors",
@@ -146,6 +154,7 @@ async function showFixSuggestions(operationId: string) {
 		placeHolder:
 			"Please fix the errors in PROBLEMS first, then try the fix suggestions below.",
 	});
+
 	sendInfo(operationId, {
 		operationName: "build",
 		choiceForBuildFix: ans ? ans.label : "esc",

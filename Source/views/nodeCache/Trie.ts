@@ -15,6 +15,7 @@ export class Trie<T extends IUriData> {
 		if (!input.uri) {
 			return;
 		}
+
 		let currentNode: TrieNode<T | undefined> = this.root;
 
 		const fsPath: string = Uri.parse(input.uri).fsPath;
@@ -25,9 +26,11 @@ export class Trie<T extends IUriData> {
 			if (!segment) {
 				continue;
 			}
+
 			if (!currentNode.children[segment]) {
 				currentNode.children[segment] = new TrieNode(undefined);
 			}
+
 			currentNode = currentNode.children[segment];
 		}
 
@@ -46,9 +49,11 @@ export class Trie<T extends IUriData> {
 			if (!segment) {
 				continue;
 			}
+
 			if (returnEarly && currentNode.value) {
 				return currentNode;
 			}
+
 			if (currentNode.children[segment]) {
 				currentNode = currentNode.children[segment];
 			} else {
@@ -72,6 +77,7 @@ export class Trie<T extends IUriData> {
 			if (!segment) {
 				continue;
 			}
+
 			if (currentNode.children[segment]) {
 				currentNode = currentNode.children[segment];
 			} else {
@@ -97,10 +103,12 @@ export interface IUriData {
 
 export class TrieNode<T> {
 	private _value?: T;
+
 	private _children: INodeChildren<T>;
 
 	constructor(value: T) {
 		this._value = value;
+
 		this._children = {};
 	}
 

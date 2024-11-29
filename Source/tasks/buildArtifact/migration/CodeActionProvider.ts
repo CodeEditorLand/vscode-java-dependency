@@ -9,6 +9,7 @@ import { DiagnosticProvider } from "./DiagnosticProvider";
 
 export class CodeActionProvider implements vscode.CodeActionProvider {
 	public static JAVA_UPDATE_DEPRECATED_TASK_TITLE = `Change to \"${BuildArtifactTaskProvider.exportJarType}\"`;
+
 	public static JAVA_BUILD_ARTIFACT_TYPE = `"type": "${BuildArtifactTaskProvider.exportJarType}"`;
 
 	public provideCodeActions(
@@ -26,6 +27,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
 				) {
 					continue;
 				}
+
 				if (diagnostic.range.contains(range)) {
 					const updateTaskCommand: vscode.Command = {
 						command: Commands.JAVA_UPDATE_DEPRECATED_TASK,
@@ -43,6 +45,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
 				}
 			}
 		}
+
 		return [];
 	}
 }

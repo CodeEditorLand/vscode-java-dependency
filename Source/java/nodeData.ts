@@ -22,15 +22,22 @@ export enum TypeKind {
 
 export interface INodeData {
 	displayName?: string;
+
 	name: string;
+
 	moduleName?: string;
+
 	path?: string;
 	/**
 	 * returned from Java side using `IJavaElement.getHandlerIdentifier();`
 	 */
 	handlerIdentifier?: string;
+
 	uri?: string;
+
 	kind: NodeKind;
+
 	children?: any[];
+
 	metaData?: { [id: string]: any };
 }

@@ -80,6 +80,7 @@ export namespace Jdtls {
 						uriOfChildren,
 						pattern,
 					);
+
 					toExclude.forEach((uriToExclude: string) =>
 						urisToExclude.add(uriToExclude),
 					);
@@ -91,10 +92,12 @@ export namespace Jdtls {
 					if (!node.uri) {
 						return true;
 					}
+
 					return !urisToExclude.has(node.uri);
 				});
 			}
 		}
+
 		return nodeData;
 	}
 

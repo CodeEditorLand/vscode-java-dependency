@@ -43,6 +43,7 @@ export class HierarchicalPackageNode extends PackageNode {
 			if (data) {
 				if (this.nodeData?.children) {
 					this.nodeData.children.push(...data);
+
 					this.nodeData.children = _.uniqBy(
 						this.nodeData.children,
 						(child: INodeData) => [child.path, child.name].join(),
@@ -51,7 +52,9 @@ export class HierarchicalPackageNode extends PackageNode {
 					this.nodeData.children = data;
 				}
 			}
+
 			this._childrenNodes = this.createChildNodeList() || [];
+
 			this.sort();
 
 			return this._childrenNodes;
@@ -105,6 +108,7 @@ export class HierarchicalPackageNode extends PackageNode {
 				);
 			});
 		}
+
 		return result.filter(<T>(n?: T): n is T => Boolean(n));
 	}
 

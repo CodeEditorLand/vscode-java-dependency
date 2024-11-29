@@ -54,6 +54,7 @@ export class PackageRootNode extends DataNode {
 				);
 			});
 		}
+
 		return result.filter(<T>(n?: T): n is T => Boolean(n));
 	}
 
@@ -83,6 +84,7 @@ export class PackageRootNode extends DataNode {
 			) {
 				contextValue += "+referencedLibrary";
 			}
+
 			return contextValue;
 		} else {
 			contextValue = Explorer.ContextValueType.PackageRoot;
@@ -90,6 +92,7 @@ export class PackageRootNode extends DataNode {
 			if (isTest(data)) {
 				contextValue += "+test";
 			}
+
 			if (resourceRoots.includes(this._nodeData.name)) {
 				// APIs in JDT does not have a consistent result telling whether a package root
 				// is a source root or resource root, so we hard code some common resources root
@@ -98,9 +101,11 @@ export class PackageRootNode extends DataNode {
 			} else {
 				contextValue += "+source";
 			}
+
 			if (this._project.nodeData.metaData?.MaxSourceVersion >= 16) {
 				contextValue += "+allowRecord";
 			}
+
 			return contextValue;
 		}
 	}

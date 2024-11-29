@@ -18,7 +18,9 @@ export abstract class ExplorerNode {
 			if (this === node) {
 				return true;
 			}
+
 			node = node.getParent();
+
 			levelToCheck--;
 		}
 

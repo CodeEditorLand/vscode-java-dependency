@@ -47,6 +47,7 @@ class SyncHandler implements Disposable {
 				disposable.dispose();
 			}
 		}
+
 		this.disposables = [];
 	}
 
@@ -76,13 +77,17 @@ class SyncHandler implements Disposable {
 
 				const watcher: FileSystemWatcher =
 					workspace.createFileSystemWatcher(pattern);
+
 				this.disposables.push(watcher);
+
 				this.setupWatchers(watcher);
 			}
 		} catch (e) {
 			const fileSystemWatcher: FileSystemWatcher =
 				workspace.createFileSystemWatcher("**/{*.java,src/**}");
+
 			this.disposables.push(fileSystemWatcher);
+
 			this.setupWatchers(fileSystemWatcher);
 		}
 	}
@@ -107,8 +112,10 @@ class SyncHandler implements Disposable {
 				if (!(await this.needRefresh(uri.fsPath))) {
 					return;
 				}
+
 				const node: DataNode | undefined =
 					explorerNodeCache.getDataNode(uri);
+
 				this.refresh(node);
 			}),
 		);
@@ -148,6 +155,7 @@ class SyncHandler implements Disposable {
 			while (node && node.nodeData.kind !== NodeKind.PackageRoot) {
 				node = <DataNode>node.getParent();
 			}
+
 			return node;
 		} else {
 			// in flat view
@@ -164,6 +172,7 @@ class SyncHandler implements Disposable {
 				while (node && node.nodeData.kind > NodeKind.PackageRoot) {
 					node = <DataNode>node.getParent();
 				}
+
 				return node;
 			}
 		}

@@ -48,6 +48,7 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 		this._onDidChangeTreeData.event;
 
 	private _rootItems: ExplorerNode[] | undefined = undefined;
+
 	private _refreshDelayTrigger: _.DebouncedFunc<
 		(element?: ExplorerNode) => void
 	>;
@@ -67,6 +68,7 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 					this.refresh(debounce, element),
 			),
 		);
+
 		context.subscriptions.push(
 			commands.registerCommand(
 				Commands.EXPORT_JAR_REPORT,
@@ -84,6 +86,7 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 					this.refresh(debounce, element),
 			),
 		);
+
 		context.subscriptions.push(
 			instrumentOperationAsVsCodeCommand(
 				Commands.VIEW_PACKAGE_EXPORT_JAR,
@@ -92,6 +95,7 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 				},
 			),
 		);
+
 		context.subscriptions.push(
 			instrumentOperationAsVsCodeCommand(
 				Commands.VIEW_PACKAGE_OUTLINE,
@@ -101,6 +105,7 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 					}),
 			),
 		);
+
 		context.subscriptions.push(
 			instrumentOperationAsVsCodeCommand(
 				Commands.JAVA_PROJECT_BUILD_WORKSPACE,
@@ -111,12 +116,14 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 					),
 			),
 		);
+
 		context.subscriptions.push(
 			instrumentOperationAsVsCodeCommand(
 				Commands.JAVA_PROJECT_CLEAN_WORKSPACE,
 				() => commands.executeCommand(Commands.JAVA_CLEAN_WORKSPACE),
 			),
 		);
+
 		context.subscriptions.push(
 			instrumentOperationAsVsCodeCommand(
 				Commands.JAVA_PROJECT_UPDATE,
@@ -127,12 +134,14 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 								"Uri not available when reloading project",
 							),
 						);
+
 						window.showErrorMessage(
 							"The URI of the project is not available, you can try to trigger the command 'Java: Reload Project' from Command Palette.",
 						);
 
 						return;
 					}
+
 					const pattern: RelativePattern = new RelativePattern(
 						Uri.parse(node.uri).fsPath?.replace(/[\\\/]+$/, ""),
 						"{pom.xml,*.gradle}",
@@ -153,6 +162,7 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 				},
 			),
 		);
+
 		context.subscriptions.push(
 			instrumentOperationAsVsCodeCommand(
 				Commands.JAVA_PROJECT_REBUILD,
@@ -163,12 +173,14 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 								"Uri not available when building project",
 							),
 						);
+
 						window.showErrorMessage(
 							"The URI of the project is not available, you can try to trigger the command 'Java: Rebuild Projects' from Command Palette.",
 						);
 
 						return;
 					}
+
 					commands.executeCommand(
 						Commands.BUILD_PROJECT,
 						Uri.parse(node.uri),
@@ -184,20 +196,25 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 	public refresh(debounce = false, element?: ExplorerNode) {
 		if (element === undefined || this.pendingRefreshElement === undefined) {
 			this._refreshDelayTrigger(undefined);
+
 			this.pendingRefreshElement = undefined;
 		} else if (
 			this.pendingRefreshElement === null ||
 			element.isItselfOrAncestorOf(this.pendingRefreshElement)
 		) {
 			this._refreshDelayTrigger(element);
+
 			this.pendingRefreshElement = element;
 		} else if (this.pendingRefreshElement.isItselfOrAncestorOf(element)) {
 			this._refreshDelayTrigger(this.pendingRefreshElement);
 		} else {
 			this._refreshDelayTrigger.flush();
+
 			this._refreshDelayTrigger(element);
+
 			this.pendingRefreshElement = element;
 		}
+
 		if (!debounce) {
 			// Immediately refresh
 			this._refreshDelayTrigger.flush();
@@ -208,9 +225,11 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 		if (!wait) {
 			wait = Settings.refreshDelay();
 		}
+
 		if (this._refreshDelayTrigger) {
 			this._refreshDelayTrigger.cancel();
 		}
+
 		this._refreshDelayTrigger = _.debounce(this.doRefresh, wait);
 	}
 
@@ -282,6 +301,7 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 					result = result.concat(projects);
 				}
 			}
+
 			return result;
 		}
 	}
@@ -290,8 +310,11 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 		if (!element) {
 			this._rootItems = undefined;
 		}
+
 		explorerNodeCache.removeNodeChildren(element);
+
 		this._onDidChangeTreeData.fire(element);
+
 		this.pendingRefreshElement = null;
 	}
 
@@ -329,17 +352,21 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
 							),
 						),
 					);
+
 					this._rootItems = rootItems;
 				} else {
 					const result: INodeData[] = await Jdtls.getProjects(
 						folders[0].uri.toString(),
 					);
+
 					result.forEach((project) => {
 						rootItems.push(new ProjectNode(project, undefined));
 					});
+
 					this._rootItems = rootItems;
 				}
 			}
+
 			contextManager.setContextValue(
 				Context.NO_JAVA_PROJECT,
 				_.isEmpty(rootItems),

@@ -17,6 +17,7 @@ export function isMutable(node: DataNode): boolean {
 	if (!contextValue) {
 		return false;
 	}
+
 	return (
 		packageExp.test(contextValue) || resourceOrTypeExp.test(contextValue)
 	);

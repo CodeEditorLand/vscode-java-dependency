@@ -54,5 +54,6 @@ function getInformationMessage(
 	if (useTrash) {
 		msg += "\n\nYou can restore from the Recycle Bin.";
 	}
+
 	return msg;
 }

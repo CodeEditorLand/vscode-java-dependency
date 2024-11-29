@@ -33,6 +33,7 @@ export class BuildTaskProvider implements TaskProvider {
 
 	// tslint:disable-next-line: no-invalid-template-strings
 	public static readonly workspace = "${workspace}";
+
 	public static readonly defaultTaskName = "Build Workspace";
 
 	async provideTasks(): Promise<Task[]> {
@@ -42,6 +43,7 @@ export class BuildTaskProvider implements TaskProvider {
 		if (!folders.length) {
 			return [];
 		}
+
 		const defaultTaskDefinition = {
 			type: BuildTaskProvider.type,
 			paths: [BuildTaskProvider.workspace],
@@ -87,8 +89,10 @@ export class BuildTaskProvider implements TaskProvider {
 			taskDefinition.paths = taskDefinition.paths
 				.map((p) => p.trim())
 				.filter(Boolean);
+
 			task.definition = taskDefinition;
 		}
+
 		task.execution = new CustomExecution(
 			async (
 				resolvedDefinition: IBuildTaskDefinition,
@@ -99,6 +103,7 @@ export class BuildTaskProvider implements TaskProvider {
 				);
 			},
 		);
+
 		task.presentationOptions = {
 			reveal: TaskRevealKind.Never,
 			clear: true,
@@ -122,9 +127,11 @@ class BuildTaskTerminal implements Pseudoterminal {
 	}
 
 	writeEmitter = new EventEmitter<string>();
+
 	closeEmitter = new EventEmitter<number>();
 
 	onDidWrite: Event<string> = this.writeEmitter.event;
+
 	onDidClose: Event<number> = this.closeEmitter.event;
 
 	async open(): Promise<void> {
@@ -147,7 +154,9 @@ class BuildTaskTerminal implements Pseudoterminal {
 		}
 
 		this.writeEmitter.fire("Task complete.\r\n");
+
 		this.closeEmitter.fire(returnCode);
+
 		sendInfo("", {
 			buildTaskReturnCode: returnCode.toString(),
 		});
@@ -155,6 +164,7 @@ class BuildTaskTerminal implements Pseudoterminal {
 
 	close(): void {
 		this.cancellationTokenSource.cancel();
+
 		this.cancellationTokenSource.dispose();
 	}
 
@@ -172,6 +182,7 @@ class BuildTaskTerminal implements Pseudoterminal {
 		} catch (e) {
 			if (checkErrorsReportedByJavaExtension()) {
 				commands.executeCommand(Commands.WORKBENCH_VIEW_PROBLEMS);
+
 				this.writeEmitter.fire(
 					"Errors found when building the workspace, please open PROBLEMS view for details.\r\n\r\n",
 				);
@@ -181,11 +192,13 @@ class BuildTaskTerminal implements Pseudoterminal {
 				this.writeEmitter.fire(
 					"Errors occur when building the workspace:\r\n",
 				);
+
 				this.writeEmitter.fire(`${e}\r\n\r\n`);
 
 				return ReturnCode.CommandFail;
 			}
 		}
+
 		return ReturnCode.Success;
 	}
 
@@ -249,10 +262,12 @@ class BuildTaskTerminal implements Pseudoterminal {
 						commands.executeCommand(
 							Commands.WORKBENCH_VIEW_PROBLEMS,
 						);
+
 						this.writeEmitter.fire(
 							"Errors found when building the workspace, please open PROBLEMS view for details.\r\n\r\n",
 						);
 					}
+
 					return ReturnCode.UserError;
 
 				case Jdtls.CompileWorkspaceStatus.Cancelled:
@@ -268,10 +283,12 @@ class BuildTaskTerminal implements Pseudoterminal {
 			this.writeEmitter.fire(
 				`Error occurs when building the workspace:\r\n`,
 			);
+
 			this.writeEmitter.fire(`${e}\r\n\r\n`);
 
 			return ReturnCode.CommandFail;
 		}
+
 		return ReturnCode.Success;
 	}
 
@@ -281,6 +298,7 @@ class BuildTaskTerminal implements Pseudoterminal {
 		for (const l of list) {
 			this.writeEmitter.fire(`  ${l}\r\n`);
 		}
+
 		this.writeEmitter.fire("\r\n");
 	}
 }
@@ -319,6 +337,7 @@ export function categorizePaths(
 			} else {
 				includes.push(actualPath);
 			}
+
 			continue;
 		}
 
@@ -348,6 +367,7 @@ export function categorizePaths(
 			includes.push(resolvedPath);
 		}
 	}
+
 	return [includes, excludes, invalid];
 }
 
@@ -359,6 +379,7 @@ function trimNegativeSign(negativePath: string) {
 			break;
 		}
 	}
+
 	return negativePath.substring(idx);
 }
 
@@ -399,6 +420,7 @@ export function getFinalPaths(
 			invalid.push(p);
 		}
 	}
+
 	return [result, invalid];
 }
 

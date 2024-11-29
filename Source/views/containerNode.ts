@@ -74,6 +74,7 @@ export class ContainerNode extends DataNode {
 				);
 			});
 		}
+
 		return result.filter(<T>(n?: T): n is T => Boolean(n));
 	}
 
@@ -85,6 +86,7 @@ export class ContainerNode extends DataNode {
 		if (containerType) {
 			contextValue += `+${containerType}`;
 		}
+
 		return contextValue;
 	}
 

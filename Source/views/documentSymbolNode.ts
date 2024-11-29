@@ -56,6 +56,7 @@ export class DocumentSymbolNode extends ExplorerNode {
 				);
 			});
 		}
+
 		return res;
 	}
 
@@ -66,7 +67,9 @@ export class DocumentSymbolNode extends ExplorerNode {
 				? TreeItemCollapsibleState.Collapsed
 				: TreeItemCollapsibleState.None,
 		);
+
 		item.iconPath = this.iconPath;
+
 		item.command = this.command;
 
 		return item;
@@ -87,6 +90,7 @@ export class DocumentSymbolNode extends ExplorerNode {
 
 			return new ThemeIcon(`symbol-${symbolKind}`);
 		}
+
 		return new ThemeIcon("symbol-misc");
 	}
 

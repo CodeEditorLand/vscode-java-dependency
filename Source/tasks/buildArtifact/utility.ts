@@ -97,7 +97,9 @@ export function resetStepMetadata(
 ): void {
 	if (resetTo === ExportJarStep.ResolveJavaProject) {
 		stepMetadata.workspaceFolder = undefined;
+
 		stepMetadata.projectList = [];
+
 		stepMetadata.mainClass = undefined;
 	} else if (resetTo === ExportJarStep.ResolveMainClass) {
 		stepMetadata.mainClass = undefined;
@@ -112,11 +114,17 @@ export function createPickBox<T extends QuickPickItem>(
 	canSelectMany: boolean = false,
 ): QuickPick<T> {
 	const pickBox = window.createQuickPick<T>();
+
 	pickBox.title = title;
+
 	pickBox.placeholder = placeholder;
+
 	pickBox.canSelectMany = canSelectMany;
+
 	pickBox.items = items;
+
 	pickBox.ignoreFocusOut = true;
+
 	pickBox.buttons = backBtnEnabled ? [QuickInputButtons.Back] : [];
 
 	return pickBox;
@@ -124,7 +132,9 @@ export function createPickBox<T extends QuickPickItem>(
 
 export interface IMessageOption {
 	title: string;
+
 	command: string;
+
 	arguments?: any;
 }
 
@@ -159,6 +169,7 @@ export function successMessage(outputFileName: string | undefined): void {
 	if (!outputFileName) {
 		return;
 	}
+
 	let openInExplorer: string;
 
 	if (platform() === "win32") {
@@ -168,6 +179,7 @@ export function successMessage(outputFileName: string | undefined): void {
 	} else {
 		openInExplorer = "Open Containing Folder";
 	}
+
 	window
 		.showInformationMessage(
 			"Successfully exported jar to" + EOL + outputFileName,
@@ -200,6 +212,7 @@ export async function getExtensionApi(): Promise<any> {
 			"Language Support for Java(TM) by Red Hat isn't running, the export process will be aborted.",
 		);
 	}
+
 	const extensionApi: any = await extension.activate();
 
 	if (extensionApi.getClasspaths === undefined) {
@@ -207,6 +220,7 @@ export async function getExtensionApi(): Promise<any> {
 			"Export jar is not supported in the current version of language server, please check and update your Language Support for Java(TM) by Red Hat.",
 		);
 	}
+
 	return extensionApi;
 }
 

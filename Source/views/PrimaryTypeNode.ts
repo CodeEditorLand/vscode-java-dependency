@@ -81,6 +81,7 @@ export class PrimaryTypeNode extends DataNode {
 				if (documentSymbol.kind === SymbolKind.Package) {
 					continue;
 				}
+
 				if (documentSymbol.name === this.nodeData.name) {
 					for (const childSymbol of documentSymbol.children) {
 						result.push(new DocumentSymbolNode(childSymbol, this));
@@ -88,6 +89,7 @@ export class PrimaryTypeNode extends DataNode {
 				}
 			}
 		}
+
 		return result;
 	}
 
@@ -116,6 +118,7 @@ export class PrimaryTypeNode extends DataNode {
 		const operationId = createUuid();
 
 		const startAt: number = Date.now();
+
 		sendOperationStart(operationId, "vscode.executeDocumentSymbolProvider");
 
 		try {
@@ -129,6 +132,7 @@ export class PrimaryTypeNode extends DataNode {
 			throw err;
 		} finally {
 			const duration = Date.now() - startAt;
+
 			sendOperationEnd(
 				operationId,
 				"vscode.executeDocumentSymbolProvider",
@@ -184,6 +188,7 @@ export class PrimaryTypeNode extends DataNode {
 		while (ancestor && !(ancestor instanceof ProjectNode)) {
 			ancestor = ancestor.getParent();
 		}
+
 		if (ancestor?.isUnmanagedFolder()) {
 			return ancestor;
 		}

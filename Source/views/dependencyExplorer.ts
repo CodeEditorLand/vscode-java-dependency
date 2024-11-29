@@ -50,6 +50,7 @@ export class DependencyExplorer implements Disposable {
 		if (!this._instance) {
 			this._instance = new DependencyExplorer(context);
 		}
+
 		return this._instance;
 	}
 
@@ -65,11 +66,13 @@ export class DependencyExplorer implements Disposable {
 		this._dataProvider = new DependencyDataProvider(context);
 
 		const dndController = new DragAndDropController();
+
 		this._dependencyViewer = window.createTreeView("javaProjectExplorer", {
 			treeDataProvider: this._dataProvider,
 			showCollapseAll: true,
 			dragAndDropController: dndController,
 		});
+
 		this._revealLock = new AwaitLock();
 
 		// register reveal events
@@ -81,6 +84,7 @@ export class DependencyExplorer implements Disposable {
 						textEditor?.document
 					) {
 						const uri: Uri = textEditor.document.uri;
+
 						this.reveal(uri);
 					}
 				},
@@ -119,6 +123,7 @@ export class DependencyExplorer implements Disposable {
 					) {
 						fsPath = path.dirname(fsPath);
 					}
+
 					uri = Uri.file(fsPath);
 
 					if ((await fse.stat(fsPath)).isFile()) {
@@ -235,6 +240,7 @@ export class DependencyExplorer implements Disposable {
 					if (!cmdNode) {
 						cmdNode = await this.promptForProjectNode();
 					}
+
 					newPackage(cmdNode);
 				},
 			),

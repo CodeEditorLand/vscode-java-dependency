@@ -8,17 +8,22 @@ export class HierarchicalPackageNodeData implements INodeData {
 		packageList: INodeData[],
 	): HierarchicalPackageNodeData {
 		const result = new HierarchicalPackageNodeData("", "");
+
 		packageList.forEach((nodeData) =>
 			result.addSubPackage(nodeData.name.split("."), nodeData),
 		);
+
 		result.compressTree();
 
 		return result;
 	}
 
 	public name: string;
+
 	public children: HierarchicalPackageNodeData[] = [];
+
 	public displayName: string;
+
 	private nodeData?: INodeData;
 
 	public get uri() {
@@ -47,6 +52,7 @@ export class HierarchicalPackageNodeData implements INodeData {
 
 	private constructor(displayName: string, parentName: string) {
 		this.displayName = displayName;
+
 		this.name =
 			parentName === "" ? displayName : parentName + "." + displayName;
 	}
@@ -59,11 +65,16 @@ export class HierarchicalPackageNodeData implements INodeData {
 			!this.isPackage
 		) {
 			const child = this.children[0];
+
 			this.name = this.name + "." + child.displayName;
+
 			this.displayName = this.displayName + "." + child.displayName;
+
 			this.children = child.children;
+
 			this.nodeData = child.nodeData;
 		}
+
 		this.children.forEach((child) => child.compressTree());
 	}
 
@@ -73,6 +84,7 @@ export class HierarchicalPackageNodeData implements INodeData {
 
 			return;
 		}
+
 		const subPackageDisplayName = packages.shift();
 
 		const childNode = this.children.find(
@@ -86,7 +98,9 @@ export class HierarchicalPackageNodeData implements INodeData {
 				subPackageDisplayName as string,
 				this.name,
 			);
+
 			newNode.addSubPackage(packages, nodeData);
+
 			this.children.push(newNode);
 		}
 	}
