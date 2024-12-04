@@ -1,0 +1,136 @@
+name: $(Date:yyyyMMdd).$(Rev:r)
+variables:
+  - name: Codeql.Enabled
+    value: true
+schedules:
+  - cron: 0 0 * * *
+    branches:
+      include:
+        - refs/heads/main
+resources:
+  repositories:
+    - repository: self
+      type: git
+      ref: refs/heads/main
+    - repository: MicroBuildTemplate
+      type: git
+      name: 1ESPipelineTemplates/MicroBuildTemplate
+trigger: none
+extends:
+  template: azure-pipelines/MicroBuild.1ES.Official.yml@MicroBuildTemplate
+  parameters:
+    pool:
+      name: MSEngSS-MicroBuild2022-1ES
+    stages:
+      - stage: Build
+        jobs:
+          - job: Job_1
+            displayName: Agent job 1
+            templateContext:
+              mb:
+                signing:
+                  enabled: true
+                  signType: real
+                  zipSources: false
+                  feedSource: 'https://mseng.pkgs.visualstudio.com/DefaultCollection/_packaging/MicroBuildToolset/nuget/v3/index.json'
+              outputs:
+                - output: pipelineArtifact
+                  artifactName: extension
+                  targetPath: $(Build.ArtifactStagingDirectory)
+                  displayName: "Publish Artifact: extension"
+            steps:
+              - checkout: self
+                clean: true
+                fetchTags: true
+              - task: NodeTool@0
+                displayName: Use Node 20.x
+                inputs:
+                  versionSpec: 20.x
+              # The image does not have jdk preinstalled, we need to download it first.
+              - task: PowerShell@2
+                displayName: Download JDK 17
+                inputs:
+                  targetType: 'inline'
+                  script: |-
+                    New-Item -ItemType Directory -Path "$env:AGENT_TEMPDIRECTORY\downloadjdk"
+                    Invoke-WebRequest -Uri "https://aka.ms/download-jdk/microsoft-jdk-17-windows-x64.zip" -OutFile "$env:AGENT_TEMPDIRECTORY\downloadjdk\microsoft-jdk-17-windows-x64.zip"
+              - task: JavaToolInstaller@0
+                displayName: Use Java 17
+                inputs:
+                  versionSpec: "17"
+                  jdkArchitectureOption: x64
+                  jdkSourceOption: LocalDirectory
+                  jdkFile: $(Agent.TempDirectory)/downloadjdk/microsoft-jdk-17-windows-x64.zip
+                  jdkDestinationDirectory: $(Agent.ToolsDirectory)/ms-jdk17
+              - script: java --version
+                displayName: 'Check Java installation'
+              - task: Npm@1
+                displayName: npm install
+                inputs:
+                  verbose: false
+              - task: CmdLine@2
+                displayName: npx gulp build_server
+                inputs:
+                  targetType: inline
+                  script: |-
+                    # Build the jars to the server folder.
+                    npm run build-server
+              - task: PowerShell@2
+                displayName: Sign Jars
+                inputs:
+                  targetType: 'inline'
+                  script: |-
+                    $files = Get-ChildItem -Path . -Recurse -Filter "com.microsoft.jdtls.ext.*.jar"
+                    foreach ($file in $files) {
+                        $fileName = $file.Name
+                        & dotnet "$env:MBSIGN_APPFOLDER\DDSignFiles.dll" /file:"$fileName" /certs:100010171
+                    }
+                  workingDirectory: 'server'
+              - task: CmdLine@2
+                displayName: Replace AI Key
+                inputs:
+                  script: npx json@9.0.6 -I -f package.json -e "this.aiKey=\"%AI_KEY%\""
+              - task: PowerShell@2
+                displayName: Update package.json
+                inputs:
+                  targetType: inline
+                  script: |-
+                    node ./scripts/prepare-nightly-build.js
+                    Move-Item -Path "./package.insiders.json" -Destination "./package.json" -Force
+              - script: npx @vscode/vsce@latest package --pre-release -o extension.vsix
+                displayName: 'vsce package --pre-release'
+              ### Copy files for APIScan
+              - task: CopyFiles@2
+                displayName: "Copy Files for APIScan"
+                inputs:
+                  Contents: "*.vsix"
+                  TargetFolder: $(Agent.TempDirectory)/APIScanFiles
+                condition: and(succeeded(), ne(variables['DisableAPIScan'], 'true'))
+              ### Run latest version of APIScan listed at https://www.1eswiki.com/wiki/APIScan_Build_Task
+              - task: APIScan@2
+                displayName: Run APIScan
+                inputs:
+                  softwareFolder: $(Agent.TempDirectory)/APIScanFiles
+                  softwareName: "vscode-java-dependency"
+                  softwareVersionNum: "$(Build.BuildId)"
+                  isLargeApp: false
+                  toolVersion: "Latest"
+                condition: and(succeeded(), ne(variables['DisableAPIScan'], 'true'))
+                env:
+                  AzureServicesAuthConnectionString: runAs=App;AppId=$(ApiScanClientId);TenantId=$(ApiScanTenant);AppKey=$(ApiScanSecret)
+              - script: npx @vscode/vsce@latest generate-manifest -i extension.vsix -o extension.manifest
+                displayName: 'Generate extension manifest'
+              - script: copy extension.manifest extension.signature.p7s
+                displayName: 'Prepare manifest for signing'
+              - task: CmdLine@2
+                displayName: Sign extension
+                inputs:
+                  script: dotnet %MBSIGN_APPFOLDER%/ddsignfiles.dll /file:extension.signature.p7s /certs:4014052
+              - task: CopyFiles@2
+                displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
+                inputs:
+                  Contents: |
+                    extension.vsix
+                    extension.manifest
+                    extension.signature.p7s
+                  TargetFolder: $(Build.ArtifactStagingDirectory)
